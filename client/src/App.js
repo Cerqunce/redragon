@@ -10,16 +10,14 @@ function App() {
     <>
       <Header />
       <Routes>
-        <Route path="/" element={<SinglePage />} />
+        <Route path="/" element={<Home />} />
         <Route path="reviews" element={<News />}>
-          <Route path=":id" element={<Home />} />
+          <Route path=":id" element={<SinglePage />} />
         </Route>
 
         <Route path="*" element={<ErrorPage />} />
       </Routes>
       <Footer />
-
-      
     </>
   );
 }
