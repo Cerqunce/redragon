@@ -5,19 +5,67 @@ import ErrorPage from "./pages/404page";
 import Home from "./pages/home";
 import Blogs from "./pages/blogs";
 import SinglePage from "./pages/singlePage";
-function App() {
-  return (
-    <>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="reviews" element={<Blogs />} />
-        <Route path="reviews/:id" element={<SinglePage />} />
+import Login from "./pages/login/index.jsx";
+import { ActivePageContext } from "./context/ActivePageContext";
+import { useState } from "react";
 
-        <Route path="*" element={<ErrorPage />} />
+
+function App() {
+  const [activePage, setActivePage] = useState(null);
+  return (
+    <ActivePageContext.Provider value={{activePage, setActivePage}}>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <Header />
+              <Home />
+              <Footer />
+            </>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <>
+              <Login />
+            </>
+          }
+        />
+        <Route
+          path="reviews"
+          element={
+            <>
+              <Header />
+              <Blogs />
+              <Footer />
+            </>
+          }
+        />
+        <Route
+          path="reviews/:id"
+          element={
+            <>
+              <Header />
+              <SinglePage />
+              <Footer />
+            </>
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <>
+              <Header />
+              <ErrorPage />
+              <Footer />
+            </>
+          }
+        />
       </Routes>
-      <Footer />
-    </>
+    </ActivePageContext.Provider>
   );
 }
 

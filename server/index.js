@@ -11,7 +11,6 @@ require("dotenv").config();
 app.use(bodyParser.json());
 
 // var whitelist = ["http://localhost:3000/", "https://reddragon.vercel.app/"];
-// var whitelist = ["http://localhost:3000/", "https://reddragon.vercel.app/"];
 var corsOptions = {
   credentials: true,
   // origin: function (origin, callback) {

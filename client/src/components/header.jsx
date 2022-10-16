@@ -1,5 +1,11 @@
 import logo from "./logo.png";
+import { NavLink as Link } from "react-router-dom";
+import { ActivePageContext } from "../context/ActivePageContext";
+import { useContext } from "react";
+
 export default function Header() {
+  const { activePage } = useContext(ActivePageContext);
+  console.log(activePage);
   return (
     <div
       id="sticker-sticky-wrapper"
@@ -22,86 +28,35 @@ export default function Header() {
               <div className="main-menu-wrap">
                 {/* <!-- logo --> */}
                 <div className="site-logo">
-                  <a href="index.html">
+                  <Link to="/">
                     <img src={logo} alt="" />
-                  </a>
+                  </Link>
                 </div>
                 {/* <!-- logo --> */}
 
                 {/* <!-- menu start --> */}
                 <nav className="main-menu" style={{ display: "block" }}>
                   <ul>
-                    <li className="current-list-item">
-                      <a href="/">Home</a>
-                      <ul className="sub-menu">
-                        <li>
-                          <a href="index.html">Static Home</a>
-                        </li>
-                        <li>
-                          <a href="index_2.html">Slider Home</a>
-                        </li>
-                      </ul>
+                    <li
+                      className={activePage === "home" && "current-list-item"}
+                    >
+                      <Link to="/">Home</Link>
+                    </li>
+                    <li
+                      className={activePage === "blogs" && "current-list-item"}
+                    >
+                      <Link to="/reviews">All Reviews</Link>
                     </li>
                     <li>
-                      <a href="about.html">About</a>
+                      <a href="/">Keyboard</a>
                     </li>
                     <li>
-                      <a href="/">Pages</a>
-                      <ul className="sub-menu">
-                        <li>
-                          <a href="404.html">404 page</a>
-                        </li>
-                        <li>
-                          <a href="about.html">About</a>
-                        </li>
-                        <li>
-                          <a href="cart.html">Cart</a>
-                        </li>
-                        <li>
-                          <a href="checkout.html">Check Out</a>
-                        </li>
-                        <li>
-                          <a href="contact.html">Contact</a>
-                        </li>
-                        <li>
-                          <a href="news.html">News</a>
-                        </li>
-                        <li>
-                          <a href="shop.html">Shop</a>
-                        </li>
-                      </ul>
+                      <a href="news.html">Mouse</a>
                     </li>
                     <li>
-                      <a href="news.html">News</a>
-                      <ul className="sub-menu">
-                        <li>
-                          <a href="news.html">News</a>
-                        </li>
-                        <li>
-                          <a href="single-news.html">Single News</a>
-                        </li>
-                      </ul>
+                      <a href="contact.html">Headset</a>
                     </li>
-                    <li>
-                      <a href="contact.html">Contact</a>
-                    </li>
-                    <li>
-                      <a href="shop.html">Shop</a>
-                      <ul className="sub-menu">
-                        <li>
-                          <a href="shop.html">Shop</a>
-                        </li>
-                        <li>
-                          <a href="checkout.html">Check Out</a>
-                        </li>
-                        <li>
-                          <a href="single-product.html">Single Product</a>
-                        </li>
-                        <li>
-                          <a href="cart.html">Cart</a>
-                        </li>
-                      </ul>
-                    </li>
+
                     <li>
                       {/* <div className="header-icons">
                         <a className="shopping-cart" href="cart.html">
