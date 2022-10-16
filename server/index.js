@@ -10,17 +10,19 @@ app.use(morgan("tiny"));
 require("dotenv").config();
 app.use(bodyParser.json());
 
-var whitelist = ["http://localhost:3000/", "https://reddragon.vercel.app/"];
+// var whitelist = ["http://localhost:3000/", "https://reddragon.vercel.app/"];
+// var whitelist = ["http://localhost:3000/", "https://reddragon.vercel.app/"];
 var corsOptions = {
   credentials: true,
-  origin: function (origin, callback) {
-    console.log(origin);
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  // origin: function (origin, callback) {
+  //   console.log(origin);
+  //   if (whitelist.indexOf(origin) !== -1 || !origin) {
+  //     callback(null, true);
+  //   } else {
+  //     callback(new Error("Not allowed by CORS"));
+  //   }
+  // },
+  origin: "*",
 };
 
 app.use(cors(corsOptions));
