@@ -1,4 +1,4 @@
-export default function NewsList() {
+export default function BlogsList() {
   return (
     <div class="latest-news mt-150 mb-150">
       <div class="container">

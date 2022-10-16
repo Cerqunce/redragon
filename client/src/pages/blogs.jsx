@@ -1,13 +1,13 @@
-import NewsList from "../components/newsList";
+import BlogsList from "../components/blogsList";
 import Sticker from "../components/sticker";
 
-export default function News() {
+export default function Blogs() {
   document.title = "All Reviews";
 
   return (
     <>
       <Sticker title="Organic Information" subtitle="News Article" />
-      <NewsList />
+      <BlogsList />
     </>
   );
 }

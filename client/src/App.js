@@ -3,7 +3,7 @@ import Footer from "./components/footer";
 import Header from "./components/header";
 import ErrorPage from "./pages/404page";
 import Home from "./pages/home";
-import News from "./pages/news";
+import Blogs from "./pages/blogs";
 import SinglePage from "./pages/singlePage";
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="reviews" element={<News />} />
+        <Route path="reviews" element={<Blogs />} />
         <Route path="reviews/:id" element={<SinglePage />} />
 
         <Route path="*" element={<ErrorPage />} />
