@@ -3,11 +3,27 @@ const app = express();
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const db = require("./config/database");
+const cors = require("cors");
 
 // Middleware
 app.use(morgan("tiny"));
 require("dotenv").config();
 app.use(bodyParser.json());
+
+var whitelist = ["http://localhost:3000/", "https://reddragon.vercel.app/"];
+var corsOptions = {
+  credentials: true,
+  origin: function (origin, callback) {
+    console.log(origin);
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 
 //Database Setup
 try {
@@ -16,6 +32,7 @@ try {
 } catch (error) {
   console.log("Unable to connect to the database:");
 }
+
 
 // Routes
 app.get("/api/blogs/all", (req, res) => {
