@@ -26,7 +26,11 @@ export default function Home() {
   if (reviews) {
     return (
       <>
-        <Hero title="title" subtitle="subtitle" />
+        <Hero
+          title="title"
+          subtitle="subtitle"
+          image={reviews.length > 0 ? reviews[0].image : ""}
+        />
         <BlogsList reviews={reviews} />
       </>
     );

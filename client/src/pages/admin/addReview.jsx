@@ -11,10 +11,12 @@ import { useState } from "react";
 import axios from "axios";
 import { CreateReviewRoute, UploadeReviewRoute } from "../../api_routes";
 
-import { NavLink as Link } from "react-router-dom";
+import { NavLink as Link, useNavigate } from "react-router-dom";
 import { FaListUl } from "react-icons/fa";
 
 export default function Admin() {
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState(null);
@@ -63,6 +65,7 @@ export default function Admin() {
       };
       axios.post(CreateReviewRoute, data).then((res) => {
         console.log(res.data);
+        navigate("/admin/all");
       });
     });
   };

@@ -1,6 +1,13 @@
-export default function Sticker({ title, subtitle }) {
+import { baseURL } from "../api_routes";
+
+export default function Sticker({ title, subtitle, image = "" }) {
   return (
-    <div className="breadcrumb-section breadcrumb-bg">
+    <div
+      className="breadcrumb-section breadcrumb-bg"
+      style={{
+        backgroundImage: `url(${baseURL}${image})`,
+      }}
+    >
       <div className="container">
         <div className="row">
           <div className="col-lg-8 offset-lg-2 text-center">

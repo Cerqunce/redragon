@@ -50,7 +50,7 @@ export default function Header() {
                     </li>
                     <li
                       className={
-                        activePage === "keyboards" && "current-list-item"
+                        activePage === "keyboard" && "current-list-item"
                       }
                     >
                       <Link to="/reviews?filter=keyboard">Keyboards</Link>

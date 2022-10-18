@@ -23,7 +23,11 @@ export default function SinglePage() {
 
   return (
     <>
-      <Sticker title={review? review.title : ""} subtitle={review? review.type : ""} />
+      <Sticker
+        title={review ? review.title : ""}
+        subtitle={review ? review.type : ""}
+        image={review ? review.image : ""}
+      />
       <SingleProduct review={review} />
     </>
   );

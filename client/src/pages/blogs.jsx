@@ -31,7 +31,11 @@ export default function Blogs() {
 
   return (
     <>
-      <Sticker title="Reviews" subtitle={filter} />
+      <Sticker
+        title="Reviews"
+        subtitle={filter}
+        image={reviews.length > 0 ? reviews[0].image : ""}
+      />
       <BlogsList reviews={reviews} />
     </>
   );

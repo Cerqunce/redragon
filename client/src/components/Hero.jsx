@@ -1,6 +1,13 @@
-export default function Hero({title, subtitle}) {
+import { baseURL } from "../api_routes";
+
+export default function Hero({ title, subtitle, image = "" }) {
   return (
-    <div className="hero-area hero-bg">
+    <div
+      className="hero-area hero-bg"
+      style={{
+        backgroundImage: `url(${baseURL}${image})`,
+      }}
+    >
       <div className="container">
         <div className="row">
           <div className="col-lg-9 offset-lg-2 text-center">
