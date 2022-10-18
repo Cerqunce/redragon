@@ -151,5 +151,5 @@ app.post("/api/blogs/delete/", async (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-  console.log(`Listening at http://localhost:${process.env.PORT}`);
+  console.log(`Listening at ${process.env.PORT}`);
 });
