@@ -2,16 +2,6 @@ const { Sequelize } = require("sequelize");
 // const setAssocations = require("../associations/setAssocations");
 require("dotenv").config();
 
-// const Connection = {
-//   dialect: "postgres",
-//   host: "localhost",
-//   port: "5432",
-//   username: process.env.DB_USERNAME,
-//   password: process.env.DB_PASSWORD,
-//   database: process.env.DB_NAME,
-//   logging: false,
-// };
-
 const Connection = {
   dialect: "postgres",
   host: process.env.DB_HOST,
@@ -29,7 +19,7 @@ const Connection = {
 
 
 const sequelize = new Sequelize(Connection);
-sequelize.sync({ alter: true });
+sequelize.sync({ alter: false });
 console.log("All models were synchronized successfully.");
 sequelize.query("CREATE EXTENSION IF NOT EXISTS pg_trgm", { raw: true });
 
