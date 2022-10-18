@@ -19,7 +19,7 @@ const Connection = {
 
 
 const sequelize = new Sequelize(Connection);
-sequelize.sync({ alter: false });
+sequelize.sync({ alter: true });
 console.log("All models were synchronized successfully.");
 sequelize.query("CREATE EXTENSION IF NOT EXISTS pg_trgm", { raw: true });
 

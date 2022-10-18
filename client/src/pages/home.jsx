@@ -10,7 +10,7 @@ import Preloader from "../components/preloader";
 export default function Home() {
   const { setActivePage } = useContext(ActivePageContext);
 
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState(null);
 
   setActivePage("home");
 
@@ -23,7 +23,7 @@ export default function Home() {
     };
     getBlogs();
   }, []);
-  if (reviews.length > 0) {
+  if (reviews) {
     return (
       <>
         <Hero title="title" subtitle="subtitle" />
