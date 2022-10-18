@@ -18,8 +18,8 @@ export default function Footer() {
               <h2 className="widget-title">Get in Touch</h2>
               <ul>
                 <li>34/8, East Hukupara, Gifirtok, Sadan.</li>
-                <li>support@fruitkha.com</li>
-                <li>+00 111 222 3333</li>
+                <li>support@reddragon.com</li>
+                <li>+212 672 407 504</li>
               </ul>
             </div>
           </div>
