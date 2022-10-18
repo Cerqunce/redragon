@@ -25,7 +25,14 @@ export default function Header() {
         <div className="container">
           <div className="row">
             <div className="col-lg-12 col-sm-12 text-center">
-              <div className="main-menu-wrap">
+              <div
+                className="main-menu-wrap"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 {/* <!-- logo --> */}
                 <div className="site-logo">
                   <Link to="/">
@@ -33,7 +40,6 @@ export default function Header() {
                   </Link>
                 </div>
                 {/* <!-- logo --> */}
-
                 {/* <!-- menu start --> */}
                 <nav className="main-menu" style={{ display: "block" }}>
                   <ul>
@@ -43,18 +49,23 @@ export default function Header() {
                       <Link to="/">Home</Link>
                     </li>
                     <li
-                      className={activePage === "blogs" && "current-list-item"}
+                      className={
+                        activePage === "keyboards" && "current-list-item"
+                      }
                     >
-                      <Link to="/reviews">All Reviews</Link>
+                      <Link to="/reviews?filter=keyboard">Keyboards</Link>
                     </li>
-                    <li>
-                      <a href="/">Keyboard</a>
+                    <li
+                      className={activePage === "mouse" && "current-list-item"}
+                    >
+                      <Link to="/reviews?filter=mouse">Mouse</Link>
                     </li>
-                    <li>
-                      <a href="news.html">Mouse</a>
-                    </li>
-                    <li>
-                      <a href="contact.html">Headset</a>
+                    <li
+                      className={
+                        activePage === "headset" && "current-list-item"
+                      }
+                    >
+                      <Link to="/reviews?filter=headset">Headset</Link>
                     </li>
 
                     <li>

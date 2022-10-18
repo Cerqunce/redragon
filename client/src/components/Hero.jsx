@@ -1,4 +1,4 @@
-export default function Hero() {
+export default function Hero({title, subtitle}) {
   return (
     <div className="hero-area hero-bg">
       <div className="container">
@@ -6,16 +6,16 @@ export default function Hero() {
           <div className="col-lg-9 offset-lg-2 text-center">
             <div className="hero-text">
               <div className="hero-text-tablecell">
-                <p className="subtitle">Fresh & Organic</p>
-                <h1>Delicious Seasonal Fruits</h1>
-                <div className="hero-btns">
+                <p className="subtitle">{subtitle}</p>
+                <h1>{title}</h1>
+                {/* <div className="hero-btns">
                   <a href="shop.html" className="boxed-btn">
                     Fruit Collection
                   </a>
                   <a href="contact.html" className="bordered-btn">
                     Contact Us
                   </a>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

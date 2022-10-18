@@ -5,15 +5,16 @@ import ErrorPage from "./pages/404page";
 import Home from "./pages/home";
 import Blogs from "./pages/blogs";
 import SinglePage from "./pages/singlePage";
-import Login from "./pages/login/index.jsx";
+import Login from "./pages/admin/login.jsx";
 import { ActivePageContext } from "./context/ActivePageContext";
 import { useState } from "react";
-
+import Admin from "./pages/admin/addReview";
+import AllReviews from "./pages/admin/allReviews";
 
 function App() {
   const [activePage, setActivePage] = useState(null);
   return (
-    <ActivePageContext.Provider value={{activePage, setActivePage}}>
+    <ActivePageContext.Provider value={{ activePage, setActivePage }}>
       <Routes>
         <Route
           path="/"
@@ -25,14 +26,23 @@ function App() {
             </>
           }
         />
-        <Route
-          path="/admin"
+        {/* <Route
+          path="/admin/"
           element={
             <>
               <Login />
             </>
           }
+        /> */}
+        <Route
+          path="/admin/all"
+          element={
+            <>
+              <AllReviews />
+            </>
+          }
         />
+        <Route path="/admin/add" element={<Admin />} />
         <Route
           path="reviews"
           element={

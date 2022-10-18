@@ -1,25 +1,36 @@
 import Hero from "../components/Hero";
 import axios from "axios";
 import { useContext, useEffect } from "react";
-import { getAllBlogsRoute } from "../api_routes";
+import { getAllReviewsRoute } from "../api_routes";
 import { ActivePageContext } from "../context/ActivePageContext";
+import BlogsList from "../components/blogsList";
+import { useState } from "react";
+import Preloader from "../components/preloader";
 
 export default function Home() {
+  const { setActivePage } = useContext(ActivePageContext);
+
+  const [reviews, setReviews] = useState([]);
+
+  setActivePage("home");
+
+  document.title = "Home";
+
   useEffect(() => {
     const getBlogs = async () => {
-      const response = await axios.get(getAllBlogsRoute);
-      console.log(response.data);
+      const response = await axios.get(getAllReviewsRoute);
+      setReviews(response.data);
     };
     getBlogs();
   }, []);
-
-  const {activePage, setActivePage} = useContext(ActivePageContext);
-  setActivePage("home");
-
-  return (
-    <>
-      <Hero />
-      {/* <BlogsList /> */}
-    </>
-  );
+  if (reviews.length > 0) {
+    return (
+      <>
+        <Hero title="title" subtitle="subtitle" />
+        <BlogsList reviews={reviews} />
+      </>
+    );
+  } else {
+    return <Preloader />;
+  }
 }

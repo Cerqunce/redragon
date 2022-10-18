@@ -34,10 +34,49 @@ try {
   console.log("Unable to connect to the database:");
 }
 
+const multer = require("multer");
+const STORAGE = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + file.originalname);
+  },
+});
+
+const upload = multer({
+  storage: STORAGE,
+
+  fileFilter: (req, file, cb) => {
+    console.log("mimetype: ", file.mimetype);
+    if (
+      file.mimetype == "image/png" ||
+      file.mimetype == "image/jpg" ||
+      file.mimetype == "image/jpeg"
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      return cb(
+        false,
+        false,
+        new Error("Only .png, .jpg and .jpeg format allowed!")
+      );
+    }
+  },
+});
 
 // Routes
+
+app.use("/api/uploads", express.static("uploads"));
+
+app.post("/api/blogs/upload", upload.single("image"), (req, res) => {
+  console.log(req.file);
+  return res.send(req.file);
+});
+
 app.get("/api/blogs/all", (req, res) => {
-  db.models.Blog.findAll()
+  db.models.Review.findAll()
     .then((blogs) => {
       res.json(blogs);
     })
@@ -46,18 +85,69 @@ app.get("/api/blogs/all", (req, res) => {
     });
 });
 
-app.post("/api/blogs/create", (req, res) => {
-  const { html, draft } = req.body;
-  db.models.Blog.create({
-    html,
-    draft,
-  })
-    .then((blog) => {
-      res.json(blog);
-    })
-    .catch((err) => {
-      res.json(err);
+app.post("/api/blogs/all", async (req, res) => {
+  const { filter } = req.body;
+  if (!filter) {
+    return res.status(400).json({ msg: "No filter provided" });
+  }
+  try {
+    const reviews = await db.models.Review.findAll({
+      where: {
+        type: filter,
+      },
     });
+    return res.status(200).json(reviews);
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+});
+
+app.post("/api/blogs/getreview", async (req, res) => {
+  const { id } = req.body;
+  if (!id) return res.json({ message: "id is required" });
+  try {
+    const review = await db.models.Review.findOne({ where: { id: id } });
+    return res.json(review);
+  } catch (error) {
+    return res.json(error);
+  }
+});
+
+app.post("/api/blogs/create", async (req, res) => {
+  const { title, content, category, image, summary } = req.body;
+  if (!title || !content || !category || !image || !summary) {
+    return res
+      .status(400)
+      .json({ msg: "Please enter all fields", status: false });
+  }
+  try {
+    const review = await db.models.Review.create({
+      title,
+      content,
+      image,
+      summary,
+      type: category,
+    });
+    return res
+      .status(200)
+      .json({ msg: "review created", reviewID: review.id, status: true });
+  } catch {
+    return res.status(500).json({ msg: "Server Error", status: false });
+  }
+});
+
+app.post("/api/blogs/delete/", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const review = await db.models.Review.findOne({ where: { id } });
+    if (!review) {
+      return res.status(400).json({ msg: "Review not found", status: false });
+    }
+    await review.destroy();
+    return res.status(200).json({ msg: "Review deleted", status: true });
+  } catch {
+    return res.status(500).json({ msg: "Server Error", status: false });
+  }
 });
 
 app.listen(process.env.PORT, () => {
