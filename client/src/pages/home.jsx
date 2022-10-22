@@ -14,7 +14,7 @@ export default function Home() {
 
   setActivePage("home");
 
-  document.title = "Home";
+  document.title = "Redragon | Keyboards, Mice, and more - Reviews Site";
 
   useEffect(() => {
     const getBlogs = async () => {
@@ -27,8 +27,8 @@ export default function Home() {
     return (
       <>
         <Hero
-          title="title"
-          subtitle="subtitle"
+          title="RedRagon"
+          subtitle=""
           image={reviews.length > 0 ? reviews[0].image : ""}
         />
         <BlogsList reviews={reviews} />
