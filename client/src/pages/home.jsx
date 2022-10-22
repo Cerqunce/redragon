@@ -27,9 +27,9 @@ export default function Home() {
     return (
       <>
         <Hero
-          title="Redragon"
+          title=""
           subtitle=""
-          image={reviews.length > 0 ? reviews[0].image : ""}
+          image="url(https://media.discordapp.net/attachments/1000595849077870612/1033447344487796888/redragon_wallpapaers_2.png)"
         />
         <BlogsList reviews={reviews} />
       </>

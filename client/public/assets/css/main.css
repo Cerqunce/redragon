@@ -1675,6 +1675,12 @@ p.excerpt {
   border-radius: 50px;
 }
 
+.footer-links:hover {
+  color: #fff;
+}
+
+}
+
 .pagination-wrap ul li a.active {
   background-color: #e60012;
 }

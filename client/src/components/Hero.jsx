@@ -1,11 +1,9 @@
-import { baseURL } from "../api_routes";
-
 export default function Hero({ title, subtitle, image = "" }) {
   return (
     <div
       className="hero-area hero-bg"
       style={{
-        backgroundImage: `url(${baseURL}${image})`,
+        backgroundImage: `url(https://media.discordapp.net/attachments/1000595849077870612/1033447344487796888/redragon_wallpapaers_2.png)`,
       }}
     >
       <div className="container">

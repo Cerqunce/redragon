@@ -1,6 +1,9 @@
 import { baseURL } from "../api_routes";
 
 export default function Sticker({ title, subtitle, image = "" }) {
+if (subtitle === "kandm") {
+  subtitle = "Mouse & Keyboard Combo";
+}
   return (
     <div
       className="breadcrumb-section breadcrumb-bg"
