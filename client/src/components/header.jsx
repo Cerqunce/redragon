@@ -36,7 +36,7 @@ export default function Header() {
                 {/* <!-- logo --> */}
                 <div className="site-logo">
                   <Link to="/">
-                    <img src={logo} alt="" />
+                    <img src={logo} alt="" style={{ width: "100px" }} />
                   </Link>
                 </div>
                 {/* <!-- logo --> */}

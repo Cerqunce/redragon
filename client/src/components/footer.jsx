@@ -2,14 +2,17 @@ export default function Footer() {
   return (
     <div className="footer-area">
       <div className="container">
-        <div className="row">
+        <div className="row" style={{ justifyContent: "center" }}>
           <div className="col-lg-3 col-md-6">
             <div className="footer-box about-widget">
               <h2 className="widget-title">About us</h2>
-              <p>
-                Ut enim ad minim veniam perspiciatis unde omnis iste natus error
-                sit voluptatem accusantium doloremque laudantium, totam rem
-                aperiam, eaque ipsa quae.
+              <p style={{ textAlign: "justify" }}>
+                Posting gaming product reviews for gaming company Redragon, Will
+                be posting reviews, videos, different styles of each keyboard,
+                mouse, mousepad, speakers all brought to you by Redragon!
+                Discount codes and special offers will be included! Suggestions
+                for redragon products are welcomed always looking for
+                improvements or new ideas!
               </p>
             </div>
           </div>
@@ -23,7 +26,7 @@ export default function Footer() {
               </ul>
             </div>
           </div>
-          <div className="col-lg-3 col-md-6"></div>
+          <div className="col-lg-1 col-md-6"></div>
           <div className="col-lg-3 col-md-6">
             <div className="footer-box subscribe">
               <h2 className="widget-title">Subscribe</h2>
