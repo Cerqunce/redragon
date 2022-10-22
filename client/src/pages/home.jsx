@@ -27,7 +27,7 @@ export default function Home() {
     return (
       <>
         <Hero
-          title="RedRagon"
+          title="Redragon"
           subtitle=""
           image={reviews.length > 0 ? reviews[0].image : ""}
         />
