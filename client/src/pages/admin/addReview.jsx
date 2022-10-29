@@ -157,7 +157,7 @@ export default function Admin() {
                 <Form.Label>Image</Form.Label>
                 <Form.Control
                   type="file"
-                  accept="image/png, image/gif, image/jpeg, image/webp"
+                  accept="image/png, image/gif, image/jpeg"
                   placeholder="Password"
                   onChange={(e) => handleFileChange(e)}
                 />
