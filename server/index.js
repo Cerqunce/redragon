@@ -60,7 +60,8 @@ const upload = multer({
     if (
       file.mimetype == "image/png" ||
       file.mimetype == "image/jpg" ||
-      file.mimetype == "image/jpeg"
+      file.mimetype == "image/jpeg" ||
+      file.mimetype == "imapge/webp"
     ) {
       cb(null, true);
     } else {
@@ -68,7 +69,7 @@ const upload = multer({
       return cb(
         false,
         false,
-        new Error("Only .png, .jpg and .jpeg format allowed!")
+        new Error("Only .png, .jpg .jpeg and webp format allowed!")
       );
     }
   },
