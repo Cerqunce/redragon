@@ -20,35 +20,28 @@ import { FaListUl } from "react-icons/fa";
 import { useEffect } from "react";
 
 export default function Admin() {
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-    return false;
-  }
-
+  // function getCookie(name) {
+  //   const value = `; ${document.cookie}`;
+  //   const parts = value.split(`; ${name}=`);
+  //   if (parts.length === 2) return parts.pop().split(";").shift();
+  //   return false;
+  // }
   const navigate = useNavigate();
 
-  const token = getCookie("token");
-
-  console.log(token);
-
-  if (!token) {
-    navigate("/admin/");
-  }
-
   useEffect(() => {
+    const token = sessionStorage.getItem("token");
+
+    if (!token || token === null) {
+      navigate("/admin/");
+    }
+
     const verify = async () => {
-      const response = await axios.post(
-        VerifyRoute,
-        {},
-        { withCredentials: true }
-      );
+      const response = await axios.post(VerifyRoute, { token });
       if (!response.data.status) {
         navigate("/admin/");
       }
     };
-    if (token !== "") {
+    if (token && token !== null) {
       verify();
     }
   }, []);
@@ -98,6 +91,7 @@ export default function Admin() {
         category,
         summary,
         image: res.data.path,
+        token: sessionStorage.getItem("token"),
       };
       axios.post(CreateReviewRoute, data).then((res) => {
         console.log(res.data);

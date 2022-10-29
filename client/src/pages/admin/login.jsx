@@ -7,20 +7,20 @@ import { LoginRoute, VerifyRoute } from "../../api_routes";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Login() {
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-  }
+  // function getCookie(name) {
+  //   const value = `; ${document.cookie}`;
+  //   const parts = value.split(`; ${name}=`);
+  //   if (parts.length === 2) return parts.pop().split(";").shift();
+  // }
+
+  // const old_cookie = getCookie("token");
+  const old_cookie = sessionStorage.getItem("token");
 
   const { state } = useLocation();
   const navigate = useNavigate();
-
-  const old_cookie = getCookie("token");
-
   useEffect(() => {
     const verify = async () => {
-      const response = await axios.post(VerifyRoute, {}, { withCredentials: true });
+      const response = await axios.post(VerifyRoute, { token: old_cookie });
       if (response.data.status) {
         if (
           state &&
@@ -63,6 +63,7 @@ export default function Login() {
         }
       );
       if (data.status) {
+        sessionStorage.setItem("token", data.token);
         navigate("/admin/all");
       }
     }

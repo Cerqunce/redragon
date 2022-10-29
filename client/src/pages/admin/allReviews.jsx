@@ -5,41 +5,52 @@ import { AiFillEdit } from "react-icons/ai";
 import { FaTrashAlt } from "react-icons/fa";
 import { useState } from "react";
 import { useEffect } from "react";
-import { DeleteReviewRoute, getAllReviewsRoute } from "../../api_routes";
+import { DeleteReviewRoute, getAllReviewsRoute, VerifyRoute } from "../../api_routes";
 import axios from "axios";
 import { NavLink as Link, useNavigate } from "react-router-dom";
 
 export default function AllReviews() {
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-    return false;
-  }
+  // function getCookie(name) {
+  //   const value = `; ${document.cookie}`;
+  //   const parts = value.split(`; ${name}=`);
+  //   if (parts.length === 2) return parts.pop().split(";").shift();
+  //   return false;
+  // }
+
+  // const token = getCookie("token");
+  const token = sessionStorage.getItem("token");
 
   const navigate = useNavigate();
 
-  const token = getCookie("token");
-
-  console.log(token);
-
-  if (!token) {
-    navigate("/admin/");
-  }
-
   const [reviews, setReviews] = useState([]);
   useEffect(() => {
+    const token = sessionStorage.getItem("token");
+
+    if (!token || token === null) {
+      navigate("/admin/");
+    }
+
+    const verify = async () => {
+      const response = await axios.post(VerifyRoute, { token });
+      if (!response.data.status) {
+        navigate("/admin/");
+      }
+    };
+
     const getReviews = async () => {
-      const response = await axios.get(getAllReviewsRoute, {
-        withCredentials: true,
-      });
+      const response = await axios.get(getAllReviewsRoute);
       setReviews(response.data);
     };
-    getReviews();
+
+    if (token && token !== null) {
+      verify();
+      getReviews();
+    }
   }, []);
 
   const deleteReview = async (id) => {
-    await axios.post(DeleteReviewRoute, { id }, { withCredentials: true });
+    const token = sessionStorage.getItem("token");
+    await axios.post(DeleteReviewRoute, { id, token });
     const newReviews = reviews.filter((review) => review.id !== id);
     setReviews(newReviews);
   };

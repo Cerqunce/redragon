@@ -74,7 +74,7 @@ const upload = multer({
 });
 
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.body.token;
   if (!token) {
     return res.status(401).json({ msg: "No token, authorization denied" });
   }
@@ -184,7 +184,7 @@ app.post("/api/admin/login", async (req, res) => {
 });
 
 app.post("/api/admin/verify", (req, res) => {
-  const token = req.cookies.token;
+  const token = req.body.token;
   if (!token) {
     return res.status(401).json({ msg: "No token, authorization denied" });
   }
@@ -243,16 +243,16 @@ app.post("/api/admin/update", async (req, res) => {
   }
 });
 
-app.use(verifyToken);
 
 app.post("/api/blogs/upload", upload.single("image"), (req, res) => {
   console.log(req.file);
   return res.send(req.file);
 });
 
+app.use(verifyToken);
 app.post("/api/blogs/create", async (req, res) => {
-  const { title, content, category, image, summary } = req.body;
-  if (!title || !content || !category || !image || !summary) {
+  const { title, content, category, image, summary, token } = req.body;
+  if (!title || !content || !category || !image || !summary || !token) {
     return res
       .status(400)
       .json({ msg: "Please enter all fields", status: false });
