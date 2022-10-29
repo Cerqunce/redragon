@@ -17,7 +17,8 @@ app.use(cookieParser());
 var whitelist = [
   "http://127.0.0.1:3000",
   "https://reddragon.vercel.app",
-  "http://www.redragonreviews.com",
+  "http://redragonreviews.com",
+  "https://www.redragonreviews.com"
 ];
 var corsOptions = {
   credentials: true,
