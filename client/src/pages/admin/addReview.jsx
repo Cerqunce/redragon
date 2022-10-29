@@ -9,13 +9,49 @@ import Form from "react-bootstrap/Form";
 import { useState } from "react";
 
 import axios from "axios";
-import { CreateReviewRoute, UploadeReviewRoute } from "../../api_routes";
+import {
+  CreateReviewRoute,
+  UploadeReviewRoute,
+  VerifyRoute,
+} from "../../api_routes";
 
 import { NavLink as Link, useNavigate } from "react-router-dom";
 import { FaListUl } from "react-icons/fa";
+import { useEffect } from "react";
 
 export default function Admin() {
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return false;
+  }
+
   const navigate = useNavigate();
+
+  const token = getCookie("token");
+
+  console.log(token);
+
+  if (!token) {
+    navigate("/admin/");
+  }
+
+  useEffect(() => {
+    const verify = async () => {
+      const response = await axios.post(
+        VerifyRoute,
+        {},
+        { withCredentials: true }
+      );
+      if (!response.data.status) {
+        navigate("/admin/");
+      }
+    };
+    if (token !== "") {
+      verify();
+    }
+  }, []);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");

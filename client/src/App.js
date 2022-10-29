@@ -26,14 +26,14 @@ function App() {
             </>
           }
         />
-        {/* <Route
+        <Route
           path="/admin/"
           element={
             <>
               <Login />
             </>
           }
-        /> */}
+        />
         <Route
           path="/admin/all"
           element={

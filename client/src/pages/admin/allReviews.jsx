@@ -7,20 +7,39 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { DeleteReviewRoute, getAllReviewsRoute } from "../../api_routes";
 import axios from "axios";
-import { NavLink as Link } from "react-router-dom";
+import { NavLink as Link, useNavigate } from "react-router-dom";
 
 export default function AllReviews() {
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return false;
+  }
+
+  const navigate = useNavigate();
+
+  const token = getCookie("token");
+
+  console.log(token);
+
+  if (!token) {
+    navigate("/admin/");
+  }
+
   const [reviews, setReviews] = useState([]);
   useEffect(() => {
     const getReviews = async () => {
-      const response = await axios.get(getAllReviewsRoute);
+      const response = await axios.get(getAllReviewsRoute, {
+        withCredentials: true,
+      });
       setReviews(response.data);
     };
     getReviews();
   }, []);
 
   const deleteReview = async (id) => {
-    await axios.post(DeleteReviewRoute, { id });
+    await axios.post(DeleteReviewRoute, { id }, { withCredentials: true });
     const newReviews = reviews.filter((review) => review.id !== id);
     setReviews(newReviews);
   };
