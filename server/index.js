@@ -172,6 +172,7 @@ app.post("/api/admin/login", async (req, res) => {
     }
     const token = jwt.sign({ id: admin.id }, process.env.JWT_SECRET);
     res.cookie("token", token, {
+      sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
     return res.status(200).json({ msg: "Logged in", status: true, token });
