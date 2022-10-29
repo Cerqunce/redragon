@@ -56,7 +56,7 @@ export default function SingleProduct({ review }) {
                 </div>
               </div>
               <div className="col-lg-4">
-                <div className="sidebar-section">
+                {/* <div className="sidebar-section">
                   <div className="recent-posts">
                     <h4>Recent Posts</h4>
                     <ul>
@@ -109,7 +109,7 @@ export default function SingleProduct({ review }) {
                       </li>
                     </ul>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
