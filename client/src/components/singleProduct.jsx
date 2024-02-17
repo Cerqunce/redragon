@@ -41,7 +41,7 @@ export default function SingleProduct({ review }) {
                       // }}
                     >
                       <img
-                        src={`${baseURL}${img}`}
+                        src={`${baseURL}${details.image} `}
                         alt=""
                         className="product-img"
                       />
