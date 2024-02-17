@@ -9,10 +9,12 @@ export default function ReviewCard({ id, img, title, desc, date }) {
         <Link to={`/reviews/${id}`}>
           <div
             className="latest-news-bg"
-            style={{
-              backgroundImage: `url(${baseURL}${img})`,
-            }}
-          ></div>
+            // style={{
+            //   backgroundImage: `url(${baseURL}${img})`,
+            // }}
+          >
+            <img src={`${baseURL}${img}`} alt="" className="product-img" />
+          </div>
         </Link>
         <div className="news-text-box">
           <h3>

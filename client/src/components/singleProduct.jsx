@@ -36,10 +36,16 @@ export default function SingleProduct({ review }) {
                   <div className="single-article-text">
                     <div
                       className="single-artcile-bg"
-                      style={{
-                        backgroundImage: `url(${baseURL}${details.image})`,
-                      }}
-                    ></div>
+                      // style={{
+                      //   backgroundImage: `url(${baseURL}${details.image})`,
+                      // }}
+                    >
+                      <img
+                        src={`${baseURL}${img}`}
+                        alt=""
+                        className="product-img"
+                      />
+                    </div>
                     <p className="blog-meta">
                       <span className="author">
                         <i className="fas fa-user"></i> Admin

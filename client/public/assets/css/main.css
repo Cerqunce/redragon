@@ -2022,6 +2022,12 @@ p.testimonial-body {
   margin: 0 auto;
 }
 
+img.product-img{
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+
+}
 /* -----------------------------------------------------------------------------
 
 # About Styles
