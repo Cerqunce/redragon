@@ -16,7 +16,6 @@ export default function Header() {
         className="top-header-area"
         id="sticker"
         style={{
-          width: "1903px",
           position: "fixed",
           top: "0px",
           zIndex: "inherit",
