@@ -1,9 +1,11 @@
 export default function Hero({ title, subtitle, image = "" }) {
+
+ 
   return (
     <div
       className="hero-area hero-bg"
       style={{
-        backgroundImage: `url(https://media.discordapp.net/attachments/1000595849077870612/1033447344487796888/redragon_wallpapaers_2.png)`,
+        backgroundImage: `url(${process.env.PUBLIC_URL}/assets/img/wallpaper.jpg)`,
       }}
     >
       <div className="container">
