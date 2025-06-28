@@ -1,27 +1,35 @@
-const Sequelize = require("sequelize");
+const mongoose = require("mongoose");
 
-const Admin = (db) => {
-  db.define(
-    "Admin",
-    {
-      username: {
-        unique: true,
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      password: {
-        unique: false,
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+const adminSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    {
-      Sequelize,
-      paranoid: true,
+    password: {
+      type: String,
+      required: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    timestamps: true, // This adds createdAt and updatedAt fields
+  }
+);
 
-      deletedAt: "deletedAt",
-    }
-  );
+// Add soft delete functionality
+adminSchema.methods.softDelete = function () {
+  this.deletedAt = new Date();
+  return this.save();
 };
 
-module.exports = Admin;
+// Add query helper to exclude soft deleted documents
+adminSchema.query.notDeleted = function () {
+  return this.where({ deletedAt: null });
+};
+
+module.exports = mongoose.model("Admin", adminSchema);

@@ -1,43 +1,46 @@
-const Sequelize = require("sequelize");
+const mongoose = require("mongoose");
 
-const Blog = (db) => {
-  db.define(
-    "Review",
-    {
-      // Model attributes are defined here
-
-      title: {
-        unique: false,
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      content: {
-        unique: false,
-        type: Sequelize.TEXT("long"),
-        allowNull: false,
-      },
-      summary: {
-        unique: false,
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      type: {
-        unique: false,
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      image: {
-        unique: false,
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
+const reviewSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: false,
     },
-    {
-      Sequelize,
-      paranoid: true,
+    content: {
+      type: String,
+      required: true,
+    },
+    summary: {
+      type: String,
+      required: false,
+    },
+    type: {
+      type: String,
+      required: false,
+    },
+    image: {
+      type: String,
+      required: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    timestamps: true, // This adds createdAt and updatedAt fields
+  }
+);
 
-      deletedAt: "deletedAt",
-    }
-  );
+// Add soft delete functionality
+reviewSchema.methods.softDelete = function () {
+  this.deletedAt = new Date();
+  return this.save();
 };
-module.exports = Blog;
+
+// Add query helper to exclude soft deleted documents
+reviewSchema.query.notDeleted = function () {
+  return this.where({ deletedAt: null });
+};
+
+module.exports = mongoose.model("Review", reviewSchema);

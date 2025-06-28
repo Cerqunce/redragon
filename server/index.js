@@ -2,7 +2,9 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
-const db = require("./config/database");
+const connectDB = require("./config/database");
+const Review = require("./models/Review");
+const Admin = require("./models/Admin");
 const cors = require("cors");
 const bycrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
@@ -35,12 +37,7 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 //Database Setup
-try {
-  db.authenticate();
-  console.log("Connection has been established successfully.");
-} catch (error) {
-  console.log("Unable to connect to the database:");
-}
+connectDB();
 
 const multer = require("multer");
 const STORAGE = multer.diskStorage({
@@ -92,14 +89,13 @@ const verifyToken = (req, res, next) => {
 
 app.use("/api/uploads", express.static("uploads"));
 
-app.get("/api/blogs/all", (req, res) => {
-  db.models.Review.findAll()
-    .then((blogs) => {
-      res.json(blogs);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
+app.get("/api/blogs/all", async (req, res) => {
+  try {
+    const blogs = await Review.find({ deletedAt: null });
+    res.json(blogs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post("/api/blogs/all", async (req, res) => {
@@ -108,10 +104,9 @@ app.post("/api/blogs/all", async (req, res) => {
     return res.status(400).json({ msg: "No filter provided" });
   }
   try {
-    const reviews = await db.models.Review.findAll({
-      where: {
-        type: filter,
-      },
+    const reviews = await Review.find({
+      type: filter,
+      deletedAt: null,
     });
     return res.status(200).json(reviews);
   } catch (err) {
@@ -123,10 +118,13 @@ app.post("/api/blogs/getreview", async (req, res) => {
   const { id } = req.body;
   if (!id) return res.json({ message: "id is required" });
   try {
-    const review = await db.models.Review.findOne({ where: { id: id } });
+    const review = await Review.findById(id);
+    if (!review || review.deletedAt) {
+      return res.status(404).json({ message: "Review not found" });
+    }
     return res.json(review);
   } catch (error) {
-    return res.json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -140,14 +138,18 @@ app.post("/api/admin/add", async (req, res) => {
   try {
     const salt = await bycrypt.genSalt(10);
     const hashedPassword = await bycrypt.hash(password, salt);
-    const admin = await db.models.Admin.create({
+    const admin = new Admin({
       username,
       password: hashedPassword,
     });
+    await admin.save();
     return res
       .status(200)
-      .json({ msg: "Admin created", adminID: admin.id, status: true });
-  } catch {
+      .json({ msg: "Admin created", adminID: admin._id, status: true });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ msg: "Username already exists", status: false });
+    }
     return res.status(500).json({ msg: "Server Error", status: false });
   }
 });
@@ -160,7 +162,7 @@ app.post("/api/admin/login", async (req, res) => {
       .json({ msg: "Please enter all fields", status: false });
   }
   try {
-    const admin = await db.models.Admin.findOne({ where: { username } });
+    const admin = await Admin.findOne({ username, deletedAt: null });
     if (!admin) {
       return res.status(400).json({ msg: "Admin not found", status: false });
     }
@@ -171,7 +173,7 @@ app.post("/api/admin/login", async (req, res) => {
         .status(400)
         .json({ msg: "Invalid credentials", status: false });
     }
-    const token = jwt.sign({ id: admin.id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET);
     res.cookie("token", token, {
       sameSite: "none",
       secure: true,
@@ -202,7 +204,7 @@ app.post("/api/admin/verify", (req, res) => {
 
 app.get("/api/admin/alladmins", async (req, res) => {
   try {
-    const admins = await db.models.Admin.findAll();
+    const admins = await Admin.find({ deletedAt: null }).select('-password');
     return res.status(200).json(admins);
   } catch (err) {
     return res.status(500).json({ msg: "Server Error", status: false });
@@ -212,13 +214,13 @@ app.get("/api/admin/alladmins", async (req, res) => {
 app.post("/api/admin/delete", async (req, res) => {
   const { username } = req.body;
   try {
-    const admin = await db.models.Admin.findOne({ where: { username } });
+    const admin = await Admin.findOne({ username, deletedAt: null });
     if (!admin) {
       return res.status(400).json({ msg: "Admin not found", status: false });
     }
-    await admin.destroy();
+    await admin.softDelete();
     return res.status(200).json({ msg: "Admin deleted", status: true });
-  } catch {
+  } catch (error) {
     return res.status(500).json({ msg: "Server Error", status: false });
   }
 });
@@ -231,15 +233,16 @@ app.post("/api/admin/update", async (req, res) => {
       .json({ msg: "Please enter all fields", status: false });
   }
   try {
-    const admin = await db.models.Admin.findOne({ where: { username } });
+    const admin = await Admin.findOne({ username, deletedAt: null });
     if (!admin) {
       return res.status(400).json({ msg: "Admin not found", status: false });
     }
     const salt = await bycrypt.genSalt(10);
     const hashedPassword = await bycrypt.hash(password, salt);
-    await admin.update({ password: hashedPassword });
+    admin.password = hashedPassword;
+    await admin.save();
     return res.status(200).json({ msg: "Admin updated", status: true });
-  } catch {
+  } catch (error) {
     return res.status(500).json({ msg: "Server Error", status: false });
   }
 });
@@ -259,17 +262,18 @@ app.post("/api/blogs/create", async (req, res) => {
       .json({ msg: "Please enter all fields", status: false });
   }
   try {
-    const review = await db.models.Review.create({
+    const review = new Review({
       title,
       content,
       image,
       summary,
       type: category,
     });
+    await review.save();
     return res
       .status(200)
-      .json({ msg: "review created", reviewID: review.id, status: true });
-  } catch {
+      .json({ msg: "review created", reviewID: review._id, status: true });
+  } catch (error) {
     return res.status(500).json({ msg: "Server Error", status: false });
   }
 });
@@ -283,13 +287,13 @@ app.post("/api/blogs/delete/", async (req, res) => {
       .json({ msg: "Please enter all fields", status: false });
   }
   try {
-    const review = await db.models.Review.findOne({ where: { id } });
-    if (!review) {
+    const review = await Review.findById(id);
+    if (!review || review.deletedAt) {
       return res.status(400).json({ msg: "Review not found", status: false });
     }
-    await review.destroy();
+    await review.softDelete();
     return res.status(200).json({ msg: "Review deleted", status: true });
-  } catch {
+  } catch (error) {
     return res.status(500).json({ msg: "Server Error", status: false });
   }
 });

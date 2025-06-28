@@ -1,37 +1,17 @@
-const { Sequelize } = require("sequelize");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
-// const Connection = {
-//   dialect: "postgres",
-//   host: process.env.DB_HOST,
-//   port: "5432",
-//   username: process.env.DB_USERNAME,
-//   password: process.env.DB_PASSWORD,
-//   database: process.env.DB_NAME,
-//   logging: false,
-//   protocol: "postgres",
-//   dialectOptions: {
-//     ssl: true,
-//     native: true,
-//   },
-// };
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("MongoDB Atlas connected successfully.");
+  } catch (error) {
+    console.error("Unable to connect to MongoDB:", error);
+    process.exit(1);
+  }
+};
 
-
-// const sequelize = new Sequelize(Connection);
-const sequelize = new Sequelize(process.env.DB_URI)
-sequelize.sync({ alter: true });
-console.log("All models were synchronized successfully.");
-sequelize.query("CREATE EXTENSION IF NOT EXISTS pg_trgm", { raw: true });
-
-// initialize db
-models = [
-  require("../models/Review"),
-  require("../models/Admin"),
-];
-
-for (model of models) {
-  model(sequelize);
-}
-
-
-module.exports = sequelize;
+module.exports = connectDB;
