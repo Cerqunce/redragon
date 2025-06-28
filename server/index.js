@@ -18,6 +18,7 @@ app.use(cookieParser());
 
 var whitelist = [
   "http://127.0.0.1:3000",
+  "http://localhost:3000",
   "https://reddragon.vercel.app",
   "http://redragonreviews.com",
   "https://www.redragonreviews.com"
