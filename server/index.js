@@ -93,7 +93,12 @@ app.use("/api/uploads", express.static("uploads"));
 app.get("/api/blogs/all", async (req, res) => {
   try {
     const blogs = await Review.find({ deletedAt: null });
-    res.json(blogs);
+    // Add virtual id field for frontend compatibility
+    const blogsWithId = blogs.map(blog => ({
+      ...blog.toObject(),
+      id: blog._id
+    }));
+    res.json(blogsWithId);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -109,7 +114,12 @@ app.post("/api/blogs/all", async (req, res) => {
       type: filter,
       deletedAt: null,
     });
-    return res.status(200).json(reviews);
+    // Add virtual id field for frontend compatibility
+    const reviewsWithId = reviews.map(review => ({
+      ...review.toObject(),
+      id: review._id
+    }));
+    return res.status(200).json(reviewsWithId);
   } catch (err) {
     return res.status(500).json({ msg: err.message });
   }
@@ -117,14 +127,29 @@ app.post("/api/blogs/all", async (req, res) => {
 
 app.post("/api/blogs/getreview", async (req, res) => {
   const { id } = req.body;
-  if (!id) return res.json({ message: "id is required" });
+  console.log("Get review request - ID received:", id, "Type:", typeof id);
+  
+  if (!id) {
+    console.log("No ID provided in request body:", req.body);
+    return res.status(400).json({ message: "id is required" });
+  }
+  
   try {
     const review = await Review.findById(id);
     if (!review || review.deletedAt) {
       return res.status(404).json({ message: "Review not found" });
     }
-    return res.json(review);
+    console.log("Review found successfully:", review._id);
+    
+    // Add virtual id field for frontend compatibility
+    const reviewWithId = {
+      ...review.toObject(),
+      id: review._id
+    };
+    
+    return res.json(reviewWithId);
   } catch (error) {
+    console.error("Error fetching review:", error.message);
     return res.status(500).json({ error: error.message });
   }
 });
@@ -257,11 +282,26 @@ app.post("/api/blogs/upload", upload.single("image"), (req, res) => {
 app.use(verifyToken);
 app.post("/api/blogs/create", async (req, res) => {
   const { title, content, category, image, summary, token } = req.body;
+  
+  // Debug logging
+  console.log("Blog creation request body:", req.body);
+  console.log("Fields received:", { title: !!title, content: !!content, category: !!category, image: !!image, summary: !!summary, token: !!token });
+  
   if (!title || !content || !category || !image || !summary || !token) {
+    const missingFields = [];
+    if (!title) missingFields.push('title');
+    if (!content) missingFields.push('content');
+    if (!category) missingFields.push('category');
+    if (!image) missingFields.push('image');
+    if (!summary) missingFields.push('summary');
+    if (!token) missingFields.push('token');
+    
+    console.log("Missing fields:", missingFields);
     return res
       .status(400)
-      .json({ msg: "Please enter all fields", status: false });
+      .json({ msg: `Missing required fields: ${missingFields.join(', ')}`, status: false });
   }
+  
   try {
     const review = new Review({
       title,
@@ -271,10 +311,12 @@ app.post("/api/blogs/create", async (req, res) => {
       type: category,
     });
     await review.save();
+    console.log("Review created successfully:", review._id);
     return res
       .status(200)
       .json({ msg: "review created", reviewID: review._id, status: true });
   } catch (error) {
+    console.error("Error creating review:", error);
     return res.status(500).json({ msg: "Server Error", status: false });
   }
 });

@@ -36,8 +36,15 @@ export default function Admin() {
     }
 
     const verify = async () => {
-      const response = await axios.post(VerifyRoute, { token });
-      if (!response.data.status) {
+      try {
+        const response = await axios.post(VerifyRoute, { token });
+        if (!response.data.status) {
+          navigate("/admin/");
+        }
+      } catch (error) {
+        // Token verification failed, redirect to login
+        console.log("Token verification failed, redirecting to login");
+        sessionStorage.removeItem("token");
         navigate("/admin/");
       }
     };
@@ -72,9 +79,13 @@ export default function Admin() {
 
   const handlesubmit = async (e) => {
     e.preventDefault();
-    if (!title || !content || !file) {
+    
+    // Enhanced validation
+    if (!title || !content || !category || !summary || !file) {
+      alert("Please fill in all fields (title, content, category, summary) and select an image");
       return;
     }
+    
     const fd = new FormData();
     fd.append("image", file);
     const config = {
@@ -83,21 +94,40 @@ export default function Admin() {
       data: fd,
     };
 
-    axios(config).then((res) => {
-      console.log(res.data);
+    try {
+      const uploadRes = await axios(config);
+      console.log("Image upload response:", uploadRes.data);
+      
       const data = {
         title,
         content,
         category,
         summary,
-        image: res.data.path,
+        image: uploadRes.data.path,
         token: sessionStorage.getItem("token"),
       };
-      axios.post(CreateReviewRoute, data).then((res) => {
-        console.log(res.data);
+      
+      console.log("Creating review with data:", data);
+      
+      const createRes = await axios.post(CreateReviewRoute, data);
+      console.log("Review creation response:", createRes.data);
+      
+      if (createRes.data.status) {
+        alert("Review created successfully!");
         navigate("/admin/all");
-      });
-    });
+      } else {
+        alert("Failed to create review: " + (createRes.data.msg || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      if (error.response?.data?.msg) {
+        alert("Error: " + error.response.data.msg);
+      } else if (error.response?.status === 400) {
+        alert("Bad request: Please check all required fields are filled");
+      } else {
+        alert("Error: " + (error.message || "Unknown error"));
+      }
+    }
   };
 
   return (

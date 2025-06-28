@@ -20,20 +20,27 @@ export default function Login() {
   const navigate = useNavigate();
   useEffect(() => {
     const verify = async () => {
-      const response = await axios.post(VerifyRoute, { token: old_cookie });
-      if (response.data.status) {
-        if (
-          state &&
-          state.prevPath &&
-          state.prevPath !== "/" &&
-          state.prevPath !== "/admin" &&
-          state.prev !== ""
-        ) {
-          navigate(state.prevPath);
-        } else navigate("/admin/all");
+      try {
+        const response = await axios.post(VerifyRoute, { token: old_cookie });
+        if (response.data.status) {
+          if (
+            state &&
+            state.prevPath &&
+            state.prevPath !== "/" &&
+            state.prevPath !== "/admin" &&
+            state.prev !== ""
+          ) {
+            navigate(state.prevPath);
+          } else navigate("/admin/all");
+        }
+      } catch (error) {
+        // Token verification failed, user needs to login
+        console.log("Token verification failed, staying on login page");
+        // Optionally clear invalid token
+        sessionStorage.removeItem("token");
       }
     };
-    if (old_cookie !== "") {
+    if (old_cookie && old_cookie !== "") {
       verify();
     }
   }, []);
@@ -52,19 +59,26 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (username && password) {
-      const { data } = await axios.post(
-        LoginRoute,
-        {
-          username,
-          password,
-        },
-        {
-          withCredentials: true,
+      try {
+        const { data } = await axios.post(
+          LoginRoute,
+          {
+            username,
+            password,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+        if (data.status) {
+          sessionStorage.setItem("token", data.token);
+          navigate("/admin/all");
+        } else {
+          alert("Login failed: " + (data.msg || "Invalid credentials"));
         }
-      );
-      if (data.status) {
-        sessionStorage.setItem("token", data.token);
-        navigate("/admin/all");
+      } catch (error) {
+        console.error("Login error:", error);
+        alert("Login failed: " + (error.response?.data?.msg || "Server error"));
       }
     }
   };

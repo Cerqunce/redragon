@@ -31,15 +31,26 @@ export default function AllReviews() {
     }
 
     const verify = async () => {
-      const response = await axios.post(VerifyRoute, { token });
-      if (!response.data.status) {
+      try {
+        const response = await axios.post(VerifyRoute, { token });
+        if (!response.data.status) {
+          navigate("/admin/");
+        }
+      } catch (error) {
+        // Token verification failed, redirect to login
+        console.log("Token verification failed, redirecting to login");
+        sessionStorage.removeItem("token");
         navigate("/admin/");
       }
     };
 
     const getReviews = async () => {
-      const response = await axios.get(getAllReviewsRoute);
-      setReviews(response.data);
+      try {
+        const response = await axios.get(getAllReviewsRoute);
+        setReviews(response.data);
+      } catch (error) {
+        console.error("Failed to fetch reviews:", error);
+      }
     };
 
     if (token && token !== null) {
