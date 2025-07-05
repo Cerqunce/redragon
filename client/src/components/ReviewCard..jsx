@@ -18,7 +18,7 @@ export default function ReviewCard({ id, img, title, desc, date }) {
           </h3>
           <p className="blog-meta">
             <span className="author">
-              <i className="fas fa-user"></i> Admin
+              <i className="fas fa-user"></i> RedragonReviews
             </span>
             <span className="date">
               <i className="fas fa-calendar"></i> {date}
