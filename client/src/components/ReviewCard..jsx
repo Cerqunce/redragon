@@ -2,18 +2,14 @@ import { NavLink as Link } from "react-router-dom";
 import { baseURL } from "../api_routes";
 
 export default function ReviewCard({ id, img, title, desc, date }) {
-  img = img.replace("uploads\\", "uploads/");
+  // Always use the new image for this review
+  const reviewImage = "/assets/img/RedragonMouse.jpg";
   return (
     <div className="col-lg-4 col-md-6">
       <div className="single-latest-news">
         <Link to={`/reviews/${id}`}>
-          <div
-            className="latest-news-bg"
-            // style={{
-            //   backgroundImage: `url(${baseURL}${img})`,
-            // }}
-          >
-            <img src={`${baseURL}${img}`} alt="" className="product-img" />
+          <div className="latest-news-bg">
+            <img src={reviewImage} alt="Devourer M993 Review" className="product-img" />
           </div>
         </Link>
         <div className="news-text-box">
