@@ -4,6 +4,12 @@ import { baseURL } from "../api_routes";
 export default function ReviewCard({ id, img, title, desc, date }) {
   // Always use the new image for this review
   const reviewImage = "/assets/img/RedragonMouse.jpg";
+  // Format date to a more user-friendly format
+  const formattedDate = date ? new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }) : '';
   return (
     <div className="col-lg-4 col-md-6">
       <div className="single-latest-news">
@@ -21,7 +27,7 @@ export default function ReviewCard({ id, img, title, desc, date }) {
               <i className="fas fa-user"></i> RedragonReviews
             </span>
             <span className="date">
-              <i className="fas fa-calendar"></i> {date}
+              <i className="fas fa-calendar"></i> {formattedDate}
             </span>
           </p>
           <p className="excerpt">{desc}</p>
