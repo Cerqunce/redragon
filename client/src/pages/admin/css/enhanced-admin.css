@@ -233,9 +233,90 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+.enhanced-editor-container {
+  margin-top: 1rem;
+}
+
+.enhanced-editor-container .editor-info {
+  background: #e7f3ff;
+  border: 1px solid #b3d4fc;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.enhanced-editor-container .editor-help {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.enhanced-editor-container .editor-help ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0;
+}
+
+.enhanced-editor-container .editor-help li {
+  margin-bottom: 0.25rem;
+}
+
 .ck-editor__editable {
-  min-height: 300px !important;
+  min-height: 400px !important;
   border-radius: 0 0 10px 10px !important;
+  padding: 1.5rem !important;
+  line-height: 1.6 !important;
+}
+
+.ck-editor__main {
+  border-radius: 0 0 10px 10px !important;
+}
+
+/* Image handling in editor */
+.ck-content .image {
+  margin: 1rem 0;
+}
+
+.ck-content .image img {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ck-content .image.image_resized {
+  max-width: 100%;
+  height: auto;
+}
+
+.ck-content .image-style-side {
+  float: right;
+  margin-left: 1.5rem;
+  max-width: 50%;
+}
+
+.ck-content .image-style-align-left {
+  float: left;
+  margin-right: 1.5rem;
+}
+
+.ck-content .image-style-align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ck-content .image-style-align-right {
+  float: right;
+  margin-left: 1.5rem;
+}
+
+/* Image captions */
+.ck-content .image > figcaption {
+  background: #f8f9fa;
+  padding: 0.5rem;
+  text-align: center;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #6c757d;
+  border-radius: 0 0 8px 8px;
 }
 
 .loading-spinner {

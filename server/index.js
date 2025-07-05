@@ -273,10 +273,111 @@ app.post("/api/admin/update", async (req, res) => {
   }
 });
 
-
 app.post("/api/blogs/upload", upload.single("image"), (req, res) => {
   console.log(req.file);
   return res.send(req.file);
+});
+
+// New endpoint for uploading images within review content
+app.post("/api/blogs/upload-content-image", upload.single("upload"), (req, res) => {
+  try {
+    console.log("Content image upload:", req.file);
+    
+    if (!req.file) {
+      return res.status(400).json({
+        error: {
+          message: "No file uploaded"
+        }
+      });
+    }
+
+    // CKEditor expects this specific response format
+    const response = {
+      url: `${req.protocol}://${req.get('host')}/api/uploads/${req.file.filename}`
+    };
+
+    console.log("Content image upload response:", response);
+    return res.json(response);
+  } catch (error) {
+    console.error("Content image upload error:", error);
+    return res.status(500).json({
+      error: {
+        message: "Upload failed"
+      }
+    });
+  }
+});
+
+// Endpoint to get all uploaded images for gallery
+app.get("/api/admin/images", async (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const uploadsDir = path.join(__dirname, 'uploads');
+    
+    if (!fs.existsSync(uploadsDir)) {
+      return res.json([]);
+    }
+    
+    const files = fs.readdirSync(uploadsDir);
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    });
+    
+    const images = imageFiles.map((filename, index) => {
+      const filePath = path.join(uploadsDir, filename);
+      const stats = fs.statSync(filePath);
+      
+      return {
+        id: index,
+        filename,
+        originalname: filename,
+        size: stats.size,
+        uploadDate: stats.birthtime,
+        url: `/api/uploads/${filename}`
+      };
+    });
+    
+    // Sort by upload date, newest first
+    images.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+    
+    return res.json(images);
+  } catch (error) {
+    console.error("Error fetching images:", error);
+    return res.status(500).json({ error: "Failed to fetch images" });
+  }
+});
+
+// Endpoint to delete an image
+app.delete("/api/admin/images/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fs = require('fs');
+    const path = require('path');
+    const uploadsDir = path.join(__dirname, 'uploads');
+    
+    const files = fs.readdirSync(uploadsDir);
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    });
+    
+    if (id >= 0 && id < imageFiles.length) {
+      const filename = imageFiles[id];
+      const filePath = path.join(uploadsDir, filename);
+      
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        return res.json({ message: "Image deleted successfully" });
+      }
+    }
+    
+    return res.status(404).json({ error: "Image not found" });
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    return res.status(500).json({ error: "Failed to delete image" });
+  }
 });
 
 app.use(verifyToken);

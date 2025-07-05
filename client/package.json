@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ckeditor/ckeditor5-adapter-ckfinder": "^45.2.1",
     "@ckeditor/ckeditor5-build-classic": "^35.4.0",
+    "@ckeditor/ckeditor5-image": "^45.2.1",
     "@ckeditor/ckeditor5-react": "^5.1.0",
+    "@ckeditor/ckeditor5-upload": "^45.2.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

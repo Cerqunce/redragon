@@ -1,5 +1,6 @@
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import EnhancedCKEditor from "../../components/EnhancedCKEditor";
 
 import "./css/main.css";
 import "./css/util.css";
@@ -246,62 +247,16 @@ export default function Admin() {
 
             <div className="editor">
               <h5>Review Content</h5>
-              <CKEditor
-                editor={ClassicEditor}
+              <EnhancedCKEditor
                 data="<p>Write Here Your Review</p>"
-                config={{
-                  toolbar: {
-                    items: [
-                      'heading',
-                      '|',
-                      'bold',
-                      'italic',
-                      'underline',
-                      'strikethrough',
-                      '|',
-                      'fontSize',
-                      'fontColor',
-                      'fontBackgroundColor',
-                      '|',
-                      'alignment',
-                      '|',
-                      'numberedList',
-                      'bulletedList',
-                      '|',
-                      'outdent',
-                      'indent',
-                      '|',
-                      'link',
-                      'blockQuote',
-                      'insertTable',
-                      '|',
-                      'undo',
-                      'redo'
-                    ]
-                  },
-                  heading: {
-                    options: [
-                      { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-                      { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-                      { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-                      { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
-                    ]
-                  },
-                  fontSize: {
-                    options: [ 9, 11, 13, 'default', 17, 19, 21 ]
-                  },
-                  table: {
-                    contentToolbar: [ 'tableColumn', 'tableRow', 'mergeTableCells' ]
-                  }
-                }}
                 onReady={(editor) => {
-                  // You can store the "editor" and use when it is needed.
-                  console.log("Editor is ready to use!", editor);
+                  console.log("Enhanced Editor is ready to use!", editor);
                 }}
                 onChange={(event, editor) => {
                   const data = editor.getData();
                   setContent(data);
                 }}
+                placeholder="Write your detailed review here. You can add images, format text, create tables, and much more!"
               />
             </div>
           </div>

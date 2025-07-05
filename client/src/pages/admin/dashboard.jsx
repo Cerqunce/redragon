@@ -297,6 +297,10 @@ export default function AdminDashboard() {
                           <FaUsers className="me-1" />
                           Manage Admins
                         </Link>
+                        <Link to="/admin/gallery" className="btn btn-outline-secondary">
+                          <FaListUl className="me-1" />
+                          Image Gallery
+                        </Link>
                       </div>
                     </Card.Body>
                   </Card>
