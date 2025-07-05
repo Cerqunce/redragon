@@ -41,8 +41,8 @@ export default function SingleProduct({ review }) {
                       // }}
                     >
                       <img
-                        src={`${baseURL}${details.image} `}
-                        alt=""
+                        src={"/assets/img/RedragonMouse.jpg"}
+                        alt="Devourer M993 Review"
                         className="product-img"
                       />
                     </div>
