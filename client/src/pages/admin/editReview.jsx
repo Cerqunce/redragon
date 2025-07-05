@@ -8,35 +8,41 @@ import "./css/enhanced-admin.css";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import axios from "axios";
 import {
   CreateReviewRoute,
   UploadeReviewRoute,
   VerifyRoute,
+  singleReviewRoute,
+  baseURL,
 } from "../../api_routes";
 
-import { NavLink as Link, useNavigate } from "react-router-dom";
-import { FaListUl, FaPlus, FaSave } from "react-icons/fa";
-import { useEffect } from "react";
+import { NavLink as Link, useNavigate, useParams } from "react-router-dom";
+import { FaListUl, FaSave, FaArrowLeft } from "react-icons/fa";
 
-export default function Admin() {
-  // function getCookie(name) {
-  //   const value = `; ${document.cookie}`;
-  //   const parts = value.split(`; ${name}=`);
-  //   if (parts.length === 2) return parts.pop().split(";").shift();
-  //   return false;
-  // }
+export default function EditReview() {
   const navigate = useNavigate();
-  const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
+  const { id } = useParams();
+
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("");
+  const [summary, setSummary] = useState("");
+  const [currentImage, setCurrentImage] = useState("");
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
 
     if (!token || token === null) {
       navigate("/admin/");
+      return;
     }
 
     const verify = async () => {
@@ -44,30 +50,46 @@ export default function Admin() {
         const response = await axios.post(VerifyRoute, { token });
         if (!response.data.status) {
           navigate("/admin/");
+          return;
         }
       } catch (error) {
-        // Token verification failed, redirect to login
         console.log("Token verification failed, redirecting to login");
         sessionStorage.removeItem("token");
         navigate("/admin/");
+        return;
       }
     };
-    if (token && token !== null) {
-      verify();
+
+    const fetchReview = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.post(singleReviewRoute, { id });
+        const review = response.data;
+        
+        setTitle(review.title || "");
+        setContent(review.content || "");
+        setCategory(review.type || "");
+        setSummary(review.summary || "");
+        setCurrentImage(review.image || "");
+        
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching review:", error);
+        showAlert("Error fetching review data", "danger");
+        setLoading(false);
+      }
+    };
+
+    verify();
+    if (id) {
+      fetchReview();
     }
-  }, []);
+  }, [id, navigate]);
 
   const showAlert = (message, variant) => {
     setAlert({ show: true, message, variant });
     setTimeout(() => setAlert({ show: false, message: "", variant: "" }), 5000);
   };
-
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [category, setCategory] = useState(null);
-  const [summary, setSummary] = useState("");
-
-  const [file, setFile] = useState(null);
 
   const handleFileChange = (e) => {
     console.log(e.target.files[0]);
@@ -86,55 +108,55 @@ export default function Admin() {
     setSummary(e.target.value);
   };
 
-  const handlesubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Enhanced validation
-    if (!title || !content || !category || !summary || !file) {
-      showAlert("Please fill in all fields (title, content, category, summary) and select an image", "warning");
+    if (!title || !content || !category || !summary) {
+      showAlert("Please fill in all fields (title, content, category, summary)", "warning");
       return;
     }
-    
+
     setSaving(true);
-    
-    const fd = new FormData();
-    fd.append("image", file);
-    const config = {
-      method: "post",
-      url: UploadeReviewRoute,
-      data: fd,
-    };
 
     try {
-      const uploadRes = await axios(config);
-      console.log("Image upload response:", uploadRes.data);
-      
+      let imagePath = currentImage;
+
+      // Upload new image if selected
+      if (file) {
+        const fd = new FormData();
+        fd.append("image", file);
+        const config = {
+          method: "post",
+          url: UploadeReviewRoute,
+          data: fd,
+        };
+
+        const uploadRes = await axios(config);
+        imagePath = uploadRes.data.path;
+      }
+
       const data = {
+        id,
         title,
         content,
         category,
         summary,
-        image: uploadRes.data.path,
+        image: imagePath,
         token: sessionStorage.getItem("token"),
       };
+
+      const updateRes = await axios.post(`${baseURL}blogs/update`, data);
       
-      console.log("Creating review with data:", data);
-      
-      const createRes = await axios.post(CreateReviewRoute, data);
-      console.log("Review creation response:", createRes.data);
-      
-      if (createRes.data.status) {
-        showAlert("Review created successfully!", "success");
+      if (updateRes.data.status) {
+        showAlert("Review updated successfully!", "success");
         setTimeout(() => navigate("/admin/all"), 2000);
       } else {
-        showAlert("Failed to create review: " + (createRes.data.msg || "Unknown error"), "danger");
+        showAlert("Failed to update review: " + (updateRes.data.msg || "Unknown error"), "danger");
       }
     } catch (error) {
       console.error("Error:", error);
       if (error.response?.data?.msg) {
         showAlert("Error: " + error.response.data.msg, "danger");
-      } else if (error.response?.status === 400) {
-        showAlert("Bad request: Please check all required fields are filled", "warning");
       } else {
         showAlert("Error: " + (error.message || "Unknown error"), "danger");
       }
@@ -143,44 +165,70 @@ export default function Admin() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="limiter">
+        <div className="container-login100">
+          <div className="wrap-login100 add">
+            <div className="text-center">
+              <h3>Loading review data...</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="limiter">
         <div className="container-login100">
           <div className="wrap-login100 add">
-            <Link
-              to="/admin/all"
-              className="all-reviews"
-              style={{
-                borderRadius: "10px",
-                background: "linear-gradient(-135deg, #051922, #4158d0)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: "20px",
-                fontWeight: "bold",
-                width: "10rem",
-                padding: "0.5rem",
-                marginLeft: "auto",
-              }}
-            >
-              <FaListUl />
-              <h5 style={{ color: "white", paddingLeft: ".8rem" }}>
-                All Review
-              </h5>
-            </Link>
-            
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <Link
+                to="/admin/all"
+                className="btn btn-secondary"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <FaArrowLeft />
+                Back to Reviews
+              </Link>
+              
+              <Link
+                to="/admin/all"
+                className="all-reviews"
+                style={{
+                  borderRadius: "10px",
+                  background: "linear-gradient(-135deg, #051922, #4158d0)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  padding: "0.5rem 1rem",
+                  textDecoration: "none",
+                }}
+              >
+                <FaListUl />
+                <span style={{ marginLeft: "0.5rem" }}>All Reviews</span>
+              </Link>
+            </div>
+
             {alert.show && (
               <Alert variant={alert.variant} className="mb-3">
                 {alert.message}
               </Alert>
             )}
-            
-            <h2>Create New Review </h2>
+
+            <h2>Edit Review</h2>
             <br />
-            <br />
-            <Form onSubmit={handlesubmit}>
+
+            <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-3">
                 <Form.Label>Title</Form.Label>
                 <Form.Control
@@ -194,33 +242,42 @@ export default function Admin() {
 
               <Form.Group className="mb-3">
                 <Form.Label>Category</Form.Label>
-                <br />
                 <Form.Select size="sm" value={category} onChange={handleCategoryChange} required>
                   <option value="">Select Category</option>
-                  <option value={"keyboard"}>Keyboard</option>
-                  <option value={"mouse"}>Mouse</option>
-                  <option value={"kandm"}>Keyboard and mouse combo</option>
-                  <option value={"speaker"}>Speaker</option>
-                  <option value={"mousepad"}>Mousepad</option>
-                  <option value={"headset"}>Headset</option>
-                  <option value={"webcam"}>Webcam</option>
-                  <option value={"microphone"}>Microphone</option>
+                  <option value="keyboard">Keyboard</option>
+                  <option value="mouse">Mouse</option>
+                  <option value="kandm">Keyboard and mouse combo</option>
+                  <option value="speaker">Speaker</option>
+                  <option value="mousepad">Mousepad</option>
+                  <option value="headset">Headset</option>
+                  <option value="webcam">Webcam</option>
+                  <option value="microphone">Microphone</option>
                 </Form.Select>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>Image</Form.Label>
+                <Form.Label>Current Image</Form.Label>
+                {currentImage && (
+                  <div className="mb-2">
+                    <img 
+                      src={`${baseURL.replace('/api/', '')}uploads/${currentImage.replace('uploads/', '').replace('uploads\\', '')}`}
+                      alt="Current review image"
+                      style={{ maxWidth: "200px", maxHeight: "150px", objectFit: "cover" }}
+                      className="img-thumbnail"
+                    />
+                  </div>
+                )}
+                <Form.Label>Change Image (optional)</Form.Label>
                 <Form.Control
                   type="file"
                   accept="image/png, image/gif, image/jpeg, image/webp"
-                  onChange={(e) => handleFileChange(e)}
-                  required
+                  onChange={handleFileChange}
                 />
                 <Form.Text className="text-muted">
-                  Supported formats: PNG, GIF, JPEG, WebP
+                  Leave empty to keep current image
                 </Form.Text>
               </Form.Group>
-              
+
               <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
                 <Form.Control
@@ -232,23 +289,32 @@ export default function Admin() {
                   required
                 />
               </Form.Group>
-              
-              <Button 
-                variant="success" 
-                type="submit" 
-                disabled={saving}
-                style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}
-              >
-                <FaSave />
-                {saving ? "Creating..." : "Create Review"}
-              </Button>
+
+              <div className="d-flex gap-2 mb-3">
+                <Button 
+                  variant="success" 
+                  type="submit" 
+                  disabled={saving}
+                  style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+                >
+                  <FaSave />
+                  {saving ? "Updating..." : "Update Review"}
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  type="button"
+                  onClick={() => navigate("/admin/all")}
+                >
+                  Cancel
+                </Button>
+              </div>
             </Form>
 
             <div className="editor">
               <h5>Review Content</h5>
               <CKEditor
                 editor={ClassicEditor}
-                data="<p>Write Here Your Review</p>"
+                data={content}
                 config={{
                   toolbar: {
                     items: [
@@ -295,7 +361,6 @@ export default function Admin() {
                   }
                 }}
                 onReady={(editor) => {
-                  // You can store the "editor" and use when it is needed.
                   console.log("Editor is ready to use!", editor);
                 }}
                 onChange={(event, editor) => {
@@ -307,20 +372,6 @@ export default function Admin() {
           </div>
         </div>
       </div>
-
-      <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
-      <script src="vendor/bootstrap/js/popper.js"></script>
-      <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-      <script src="vendor/select2/select2.min.js"></script>
-      <script src="vendor/tilt/tilt.jquery.min.js"></script>
-      {/* <script>
-        $('.js-tilt').tilt(
-        {{
-          scale: 1.1,
-        }}
-        )
-      </script> */}
-      <script src="js/main.js"></script>
     </>
   );
 }

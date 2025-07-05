@@ -321,6 +321,56 @@ app.post("/api/blogs/create", async (req, res) => {
   }
 });
 
+app.post("/api/blogs/update", async (req, res) => {
+  const { id, title, content, category, image, summary, token } = req.body;
+  const { admin } = req;
+  
+  // Debug logging
+  console.log("Blog update request body:", req.body);
+  console.log("Fields received:", { id: !!id, title: !!title, content: !!content, category: !!category, image: !!image, summary: !!summary, token: !!token });
+  
+  if (!id || !title || !content || !category || !summary || !token || !admin) {
+    const missingFields = [];
+    if (!id) missingFields.push('id');
+    if (!title) missingFields.push('title');
+    if (!content) missingFields.push('content');
+    if (!category) missingFields.push('category');
+    if (!summary) missingFields.push('summary');
+    if (!token) missingFields.push('token');
+    if (!admin) missingFields.push('admin verification');
+    
+    console.log("Missing fields for update:", missingFields);
+    return res
+      .status(400)
+      .json({ msg: `Missing required fields: ${missingFields.join(', ')}`, status: false });
+  }
+  
+  try {
+    const review = await Review.findById(id);
+    if (!review || review.deletedAt) {
+      return res.status(400).json({ msg: "Review not found", status: false });
+    }
+    
+    // Update fields
+    review.title = title;
+    review.content = content;
+    review.summary = summary;
+    review.type = category;
+    if (image) {
+      review.image = image;
+    }
+    
+    await review.save();
+    console.log("Review updated successfully:", review._id);
+    return res
+      .status(200)
+      .json({ msg: "review updated", reviewID: review._id, status: true });
+  } catch (error) {
+    console.error("Error updating review:", error);
+    return res.status(500).json({ msg: "Server Error", status: false });
+  }
+});
+
 app.post("/api/blogs/delete/", async (req, res) => {
   const { id } = req.body;
   const { admin } = req;
@@ -340,7 +390,6 @@ app.post("/api/blogs/delete/", async (req, res) => {
     return res.status(500).json({ msg: "Server Error", status: false });
   }
 });
-
 
 
 

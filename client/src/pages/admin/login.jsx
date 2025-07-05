@@ -31,7 +31,7 @@ export default function Login() {
             state.prev !== ""
           ) {
             navigate(state.prevPath);
-          } else navigate("/admin/all");
+          } else navigate("/admin/dashboard");
         }
       } catch (error) {
         // Token verification failed, user needs to login
@@ -72,7 +72,7 @@ export default function Login() {
         );
         if (data.status) {
           sessionStorage.setItem("token", data.token);
-          navigate("/admin/all");
+          navigate("/admin/dashboard");
         } else {
           alert("Login failed: " + (data.msg || "Invalid credentials"));
         }
