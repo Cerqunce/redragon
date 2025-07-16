@@ -36,13 +36,10 @@ export default function SingleProduct({ review }) {
                   <div className="single-article-text">
                     <div
                       className="single-artcile-bg"
-                      // style={{
-                      //   backgroundImage: `url(${baseURL}${details.image})`,
-                      // }}
                     >
                       <img
-                        src={"/assets/img/RedragonMouse.jpg"}
-                        alt="Devourer M993 Review"
+                        src={`${baseURL}${details.image} `}
+                        alt=""
                         className="product-img"
                       />
                     </div>

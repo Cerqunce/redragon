@@ -2,8 +2,7 @@ import { NavLink as Link } from "react-router-dom";
 import { baseURL } from "../api_routes";
 
 export default function ReviewCard({ id, slug, img, title, desc, date }) {
-  // Always use the new image for this review
-  const reviewImage = "/assets/img/RedragonMouse.jpg";
+  img = img.replace("uploads\\", "uploads/");
   // Format date to a more user-friendly format
   const formattedDate = date ? new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -19,7 +18,7 @@ export default function ReviewCard({ id, slug, img, title, desc, date }) {
       <div className="single-latest-news">
         <Link to={reviewUrl}>
           <div className="latest-news-bg">
-            <img src={reviewImage} alt="Devourer M993 Review" className="product-img" />
+            <img src={`${baseURL}${img}`} className="product-img" />
           </div>
         </Link>
         <div className="news-text-box">
