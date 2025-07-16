@@ -1,0 +1,6 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:
+
+# Ads.txt location
+# https://www.redragonreviews.com/ads.txt
