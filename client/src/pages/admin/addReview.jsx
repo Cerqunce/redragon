@@ -200,7 +200,6 @@ export default function Admin() {
                   <option value="">Select Category</option>
                   <option value={"keyboard"}>Keyboard</option>
                   <option value={"mouse"}>Mouse</option>
-                  <option value={"kandm"}>Keyboard and mouse combo</option>
                   <option value={"speaker"}>Speaker</option>
                   <option value={"mousepad"}>Mousepad</option>
                   <option value={"headset"}>Headset</option>
