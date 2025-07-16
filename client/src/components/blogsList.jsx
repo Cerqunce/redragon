@@ -10,6 +10,7 @@ export default function BlogsList({ reviews }) {
             <ReviewCard
               key={index}
               id={review.id}
+              slug={review.slug}
               img={review.image}
               title={review.title}
               desc={review.summary}

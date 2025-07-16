@@ -62,7 +62,7 @@ function App() {
           }
         />
         <Route
-          path="reviews/:id"
+          path="reviews/:slug"
           element={
             <>
               <Header />

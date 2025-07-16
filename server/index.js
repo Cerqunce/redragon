@@ -126,20 +126,31 @@ app.post("/api/blogs/all", async (req, res) => {
 });
 
 app.post("/api/blogs/getreview", async (req, res) => {
-  const { id } = req.body;
-  console.log("Get review request - ID received:", id, "Type:", typeof id);
+  const { id, slug } = req.body;
+  console.log("Get review request - ID received:", id, "Slug received:", slug, "Types:", typeof id, typeof slug);
   
-  if (!id) {
-    console.log("No ID provided in request body:", req.body);
-    return res.status(400).json({ message: "id is required" });
+  if (!id && !slug) {
+    console.log("No ID or slug provided in request body:", req.body);
+    return res.status(400).json({ message: "id or slug is required" });
   }
   
   try {
-    const review = await Review.findById(id);
+    let review;
+    
+    if (slug) {
+      // Try to find by slug first
+      review = await Review.findOne({ slug, deletedAt: null });
+      console.log("Searching by slug:", slug);
+    } else {
+      // Fall back to ID search for backward compatibility
+      review = await Review.findById(id);
+      console.log("Searching by ID:", id);
+    }
+    
     if (!review || review.deletedAt) {
       return res.status(404).json({ message: "Review not found" });
     }
-    console.log("Review found successfully:", review._id);
+    console.log("Review found successfully:", review._id, "with slug:", review.slug);
     
     // Add virtual id field for frontend compatibility
     const reviewWithId = {
@@ -150,6 +161,36 @@ app.post("/api/blogs/getreview", async (req, res) => {
     return res.json(reviewWithId);
   } catch (error) {
     console.error("Error fetching review:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// New endpoint specifically for slug-based retrieval (GET method for SEO)
+app.get("/api/blogs/review/:slug", async (req, res) => {
+  const { slug } = req.params;
+  console.log("Get review by slug - Slug received:", slug);
+  
+  if (!slug) {
+    return res.status(400).json({ message: "slug is required" });
+  }
+  
+  try {
+    const review = await Review.findOne({ slug, deletedAt: null });
+    
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+    console.log("Review found by slug:", review._id, "with slug:", review.slug);
+    
+    // Add virtual id field for frontend compatibility
+    const reviewWithId = {
+      ...review.toObject(),
+      id: review._id
+    };
+    
+    return res.json(reviewWithId);
+  } catch (error) {
+    console.error("Error fetching review by slug:", error.message);
     return res.status(500).json({ error: error.message });
   }
 });

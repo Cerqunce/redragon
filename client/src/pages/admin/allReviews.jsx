@@ -238,7 +238,7 @@ export default function AllReviews() {
                               <FaTrashAlt />
                             </button>
                             <Link 
-                              to={`/reviews/${review.id}`} 
+                              to={`/reviews/${review.slug || review.id}`} 
                               className="btn btn-sm btn-outline-info"
                               title="View Review"
                               target="_blank"

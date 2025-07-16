@@ -262,7 +262,7 @@ export default function AdminDashboard() {
                             <Link to={`/admin/edit/${review.id}`} className="btn btn-sm btn-outline-primary">
                               Edit
                             </Link>
-                            <Link to={`/reviews/${review.id}`} className="btn btn-sm btn-outline-info">
+                            <Link to={`/reviews/${review.slug || review.id}`} className="btn btn-sm btn-outline-info">
                               View
                             </Link>
                           </div>
