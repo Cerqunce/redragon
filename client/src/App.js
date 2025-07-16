@@ -14,6 +14,7 @@ import AdminDashboard from "./pages/admin/dashboard";
 import AdminManagement from "./pages/admin/adminManagement";
 import ImageGallery from "./pages/admin/imageGallery";
 import AllReviews from "./pages/admin/allReviews";
+import SiteSettings from "./pages/admin/siteSettings";
 
 function App() {
   const [activePage, setActivePage] = useState(null);
@@ -48,6 +49,7 @@ function App() {
         />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/management" element={<AdminManagement />} />
+        <Route path="/admin/settings" element={<SiteSettings />} />
         <Route path="/admin/gallery" element={<ImageGallery />} />
         <Route path="/admin/add" element={<Admin />} />
         <Route path="/admin/edit/:id" element={<EditReview />} />

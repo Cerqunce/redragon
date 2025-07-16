@@ -15,7 +15,8 @@ import {
   FaKeyboard,
   FaMouse,
   FaVolumeUp,
-  FaDesktop
+  FaDesktop,
+  FaCog
 } from "react-icons/fa";
 import { Card, Row, Col, Container, Badge } from "react-bootstrap";
 
@@ -292,6 +293,10 @@ export default function AdminDashboard() {
                         <Link to="/admin/all" className="btn btn-outline-primary">
                           <FaListUl className="me-1" />
                           Manage All Reviews
+                        </Link>
+                        <Link to="/admin/settings" className="btn btn-outline-warning">
+                          <FaCog className="me-1" />
+                          Site Settings
                         </Link>
                         <Link to="/admin/management" className="btn btn-outline-info">
                           <FaUsers className="me-1" />

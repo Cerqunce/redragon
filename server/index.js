@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const connectDB = require("./config/database");
 const Review = require("./models/Review");
 const Admin = require("./models/Admin");
+const SiteSettings = require("./models/SiteSettings");
 const cors = require("cors");
 const bycrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
@@ -89,6 +90,56 @@ const verifyToken = (req, res, next) => {
 // Routes
 
 app.use("/api/uploads", express.static("uploads"));
+
+// Site Settings Routes
+app.get("/api/settings", async (req, res) => {
+  try {
+    let settings = await SiteSettings.findOne({ isActive: true });
+    
+    // If no settings exist, create default ones
+    if (!settings) {
+      settings = new SiteSettings({
+        title: "Redragon Reviews",
+        subtitle: "Your trusted source for gaming gear reviews",
+        heroImage: "assets/img/wallpaper.jpg",
+        isActive: true
+      });
+      await settings.save();
+    }
+    
+    res.status(200).json(settings);
+  } catch (error) {
+    console.error("Error fetching site settings:", error);
+    res.status(500).json({ error: "Failed to fetch site settings" });
+  }
+});
+
+app.post("/api/settings/update", verifyToken, async (req, res) => {
+  try {
+    const { title, subtitle, heroImage } = req.body;
+    
+    let settings = await SiteSettings.findOne({ isActive: true });
+    
+    if (!settings) {
+      settings = new SiteSettings({
+        title,
+        subtitle,
+        heroImage,
+        isActive: true
+      });
+    } else {
+      settings.title = title;
+      settings.subtitle = subtitle;
+      settings.heroImage = heroImage;
+    }
+    
+    await settings.save();
+    res.status(200).json({ message: "Site settings updated successfully", settings });
+  } catch (error) {
+    console.error("Error updating site settings:", error);
+    res.status(500).json({ error: "Failed to update site settings" });
+  }
+});
 
 app.get("/api/blogs/all", async (req, res) => {
   try {

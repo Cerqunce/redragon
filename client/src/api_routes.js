@@ -11,3 +11,7 @@ export const singleReviewRoute = `${baseURL}blogs/getreview`;
 export const singleReviewBySlugRoute = `${baseURL}blogs/review`; // New route for slug-based access
 export const LoginRoute = `${baseURL}admin/login`;
 export const VerifyRoute = `${baseURL}admin/verify`;
+
+// Site Settings Routes
+export const getSiteSettingsRoute = `${baseURL}settings`;
+export const updateSiteSettingsRoute = `${baseURL}settings/update`;
