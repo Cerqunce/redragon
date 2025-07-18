@@ -1,11 +1,14 @@
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import EnhancedCKEditor from "../../components/EnhancedCKEditor";
 
 import "./css/main.css";
 import "./css/util.css";
+import "./css/enhanced-admin.css";
 
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import Alert from "react-bootstrap/Alert";
 import { useState } from "react";
 
 import axios from "axios";
@@ -16,7 +19,7 @@ import {
 } from "../../api_routes";
 
 import { NavLink as Link, useNavigate } from "react-router-dom";
-import { FaListUl } from "react-icons/fa";
+import { FaListUl, FaPlus, FaSave } from "react-icons/fa";
 import { useEffect } from "react";
 
 export default function Admin() {
@@ -27,6 +30,8 @@ export default function Admin() {
   //   return false;
   // }
   const navigate = useNavigate();
+  const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -52,6 +57,11 @@ export default function Admin() {
       verify();
     }
   }, []);
+
+  const showAlert = (message, variant) => {
+    setAlert({ show: true, message, variant });
+    setTimeout(() => setAlert({ show: false, message: "", variant: "" }), 5000);
+  };
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -82,9 +92,11 @@ export default function Admin() {
     
     // Enhanced validation
     if (!title || !content || !category || !summary || !file) {
-      alert("Please fill in all fields (title, content, category, summary) and select an image");
+      showAlert("Please fill in all fields (title, content, category, summary) and select an image", "warning");
       return;
     }
+    
+    setSaving(true);
     
     const fd = new FormData();
     fd.append("image", file);
@@ -113,20 +125,22 @@ export default function Admin() {
       console.log("Review creation response:", createRes.data);
       
       if (createRes.data.status) {
-        alert("Review created successfully!");
-        navigate("/admin/all");
+        showAlert("Review created successfully!", "success");
+        setTimeout(() => navigate("/admin/all"), 2000);
       } else {
-        alert("Failed to create review: " + (createRes.data.msg || "Unknown error"));
+        showAlert("Failed to create review: " + (createRes.data.msg || "Unknown error"), "danger");
       }
     } catch (error) {
       console.error("Error:", error);
       if (error.response?.data?.msg) {
-        alert("Error: " + error.response.data.msg);
+        showAlert("Error: " + error.response.data.msg, "danger");
       } else if (error.response?.status === 400) {
-        alert("Bad request: Please check all required fields are filled");
+        showAlert("Bad request: Please check all required fields are filled", "warning");
       } else {
-        alert("Error: " + (error.message || "Unknown error"));
+        showAlert("Error: " + (error.message || "Unknown error"), "danger");
       }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -157,29 +171,40 @@ export default function Admin() {
                 All Review
               </h5>
             </Link>
+            
+            {alert.show && (
+              <Alert variant={alert.variant} className="mb-3">
+                {alert.message}
+              </Alert>
+            )}
+            
             <h2>Create New Review </h2>
             <br />
             <br />
-            <Form>
+            <Form onSubmit={handlesubmit}>
               <Form.Group className="mb-3">
                 <Form.Label>Title</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Enter Product Title"
+                  value={title}
                   onChange={handleTitleChange}
+                  required
                 />
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>Categoryy</Form.Label>
+                <Form.Label>Category</Form.Label>
                 <br />
-                <Form.Select size="sm" onChange={handleCategoryChange}>
-                  <option value={"null"}>None</option>
+                <Form.Select size="sm" value={category} onChange={handleCategoryChange} required>
+                  <option value="">Select Category</option>
                   <option value={"keyboard"}>Keyboard</option>
                   <option value={"mouse"}>Mouse</option>
-                  <option value={"kandm"}>Keyboard and mouse combo</option>
                   <option value={"speaker"}>Speaker</option>
                   <option value={"mousepad"}>Mousepad</option>
+                  <option value={"headset"}>Headset</option>
+                  <option value={"webcam"}>Webcam</option>
+                  <option value={"microphone"}>Microphone</option>
                 </Form.Select>
               </Form.Group>
 
@@ -187,36 +212,50 @@ export default function Admin() {
                 <Form.Label>Image</Form.Label>
                 <Form.Control
                   type="file"
-                  accept="image/png, image/gif, image/jpeg"
-                  placeholder="Password"
+                  accept="image/png, image/gif, image/jpeg, image/webp"
                   onChange={(e) => handleFileChange(e)}
+                  required
                 />
+                <Form.Text className="text-muted">
+                  Supported formats: PNG, GIF, JPEG, WebP
+                </Form.Text>
               </Form.Group>
+              
               <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
                 <Form.Control
-                  type="text"
-                  placeholder="Enter a biref description. It will be displayed on the cards."
+                  as="textarea"
+                  rows={3}
+                  placeholder="Enter a brief description. It will be displayed on the cards."
+                  value={summary}
                   onChange={handleSummaryChange}
+                  required
                 />
               </Form.Group>
-              <Button variant="primary" type="submit" onClick={handlesubmit}>
-                Submit
+              
+              <Button 
+                variant="success" 
+                type="submit" 
+                disabled={saving}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}
+              >
+                <FaSave />
+                {saving ? "Creating..." : "Create Review"}
               </Button>
             </Form>
 
             <div className="editor">
-              <CKEditor
-                editor={ClassicEditor}
+              <h5>Review Content</h5>
+              <EnhancedCKEditor
                 data="<p>Write Here Your Review</p>"
                 onReady={(editor) => {
-                  // You can store the "editor" and use when it is needed.
-                  console.log("Editor is ready to use!", editor);
+                  console.log("Enhanced Editor is ready to use!", editor);
                 }}
                 onChange={(event, editor) => {
                   const data = editor.getData();
                   setContent(data);
                 }}
+                placeholder="Write your detailed review here. You can add images, format text, create tables, and much more!"
               />
             </div>
           </div>

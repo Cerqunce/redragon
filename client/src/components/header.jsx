@@ -67,14 +67,6 @@ export default function Header() {
                       <Link to="/reviews?filter=headset">Headset</Link>
                     </li>
                     <li
-                      className={activePage === "kandm" && "current-list-item"}
-                    >
-                      <Link to="/reviews?filter=kandm">
-                        {" "}
-                        Mouse&Keyboard Combo
-                      </Link>
-                    </li>
-                    <li
                       className={
                         activePage === "speaker" && "current-list-item"
                       }

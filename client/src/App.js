@@ -9,6 +9,10 @@ import Login from "./pages/admin/login.jsx";
 import { ActivePageContext } from "./context/ActivePageContext";
 import { useState } from "react";
 import Admin from "./pages/admin/addReview";
+import EditReview from "./pages/admin/editReview";
+import AdminDashboard from "./pages/admin/dashboard";
+import AdminManagement from "./pages/admin/adminManagement";
+import ImageGallery from "./pages/admin/imageGallery";
 import AllReviews from "./pages/admin/allReviews";
 
 function App() {
@@ -42,7 +46,11 @@ function App() {
             </>
           }
         />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/management" element={<AdminManagement />} />
+        <Route path="/admin/gallery" element={<ImageGallery />} />
         <Route path="/admin/add" element={<Admin />} />
+        <Route path="/admin/edit/:id" element={<EditReview />} />
         <Route
           path="reviews"
           element={
@@ -54,7 +62,7 @@ function App() {
           }
         />
         <Route
-          path="reviews/:id"
+          path="reviews/:slug"
           element={
             <>
               <Header />

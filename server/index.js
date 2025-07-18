@@ -126,20 +126,31 @@ app.post("/api/blogs/all", async (req, res) => {
 });
 
 app.post("/api/blogs/getreview", async (req, res) => {
-  const { id } = req.body;
-  console.log("Get review request - ID received:", id, "Type:", typeof id);
+  const { id, slug } = req.body;
+  console.log("Get review request - ID received:", id, "Slug received:", slug, "Types:", typeof id, typeof slug);
   
-  if (!id) {
-    console.log("No ID provided in request body:", req.body);
-    return res.status(400).json({ message: "id is required" });
+  if (!id && !slug) {
+    console.log("No ID or slug provided in request body:", req.body);
+    return res.status(400).json({ message: "id or slug is required" });
   }
   
   try {
-    const review = await Review.findById(id);
+    let review;
+    
+    if (slug) {
+      // Try to find by slug first
+      review = await Review.findOne({ slug, deletedAt: null });
+      console.log("Searching by slug:", slug);
+    } else {
+      // Fall back to ID search for backward compatibility
+      review = await Review.findById(id);
+      console.log("Searching by ID:", id);
+    }
+    
     if (!review || review.deletedAt) {
       return res.status(404).json({ message: "Review not found" });
     }
-    console.log("Review found successfully:", review._id);
+    console.log("Review found successfully:", review._id, "with slug:", review.slug);
     
     // Add virtual id field for frontend compatibility
     const reviewWithId = {
@@ -150,6 +161,36 @@ app.post("/api/blogs/getreview", async (req, res) => {
     return res.json(reviewWithId);
   } catch (error) {
     console.error("Error fetching review:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// New endpoint specifically for slug-based retrieval (GET method for SEO)
+app.get("/api/blogs/review/:slug", async (req, res) => {
+  const { slug } = req.params;
+  console.log("Get review by slug - Slug received:", slug);
+  
+  if (!slug) {
+    return res.status(400).json({ message: "slug is required" });
+  }
+  
+  try {
+    const review = await Review.findOne({ slug, deletedAt: null });
+    
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+    console.log("Review found by slug:", review._id, "with slug:", review.slug);
+    
+    // Add virtual id field for frontend compatibility
+    const reviewWithId = {
+      ...review.toObject(),
+      id: review._id
+    };
+    
+    return res.json(reviewWithId);
+  } catch (error) {
+    console.error("Error fetching review by slug:", error.message);
     return res.status(500).json({ error: error.message });
   }
 });
@@ -273,10 +314,111 @@ app.post("/api/admin/update", async (req, res) => {
   }
 });
 
-
 app.post("/api/blogs/upload", upload.single("image"), (req, res) => {
   console.log(req.file);
   return res.send(req.file);
+});
+
+// New endpoint for uploading images within review content
+app.post("/api/blogs/upload-content-image", upload.single("upload"), (req, res) => {
+  try {
+    console.log("Content image upload:", req.file);
+    
+    if (!req.file) {
+      return res.status(400).json({
+        error: {
+          message: "No file uploaded"
+        }
+      });
+    }
+
+    // CKEditor expects this specific response format
+    const response = {
+      url: `${req.protocol}://${req.get('host')}/api/uploads/${req.file.filename}`
+    };
+
+    console.log("Content image upload response:", response);
+    return res.json(response);
+  } catch (error) {
+    console.error("Content image upload error:", error);
+    return res.status(500).json({
+      error: {
+        message: "Upload failed"
+      }
+    });
+  }
+});
+
+// Endpoint to get all uploaded images for gallery
+app.get("/api/admin/images", async (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const uploadsDir = path.join(__dirname, 'uploads');
+    
+    if (!fs.existsSync(uploadsDir)) {
+      return res.json([]);
+    }
+    
+    const files = fs.readdirSync(uploadsDir);
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    });
+    
+    const images = imageFiles.map((filename, index) => {
+      const filePath = path.join(uploadsDir, filename);
+      const stats = fs.statSync(filePath);
+      
+      return {
+        id: index,
+        filename,
+        originalname: filename,
+        size: stats.size,
+        uploadDate: stats.birthtime,
+        url: `/api/uploads/${filename}`
+      };
+    });
+    
+    // Sort by upload date, newest first
+    images.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+    
+    return res.json(images);
+  } catch (error) {
+    console.error("Error fetching images:", error);
+    return res.status(500).json({ error: "Failed to fetch images" });
+  }
+});
+
+// Endpoint to delete an image
+app.delete("/api/admin/images/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fs = require('fs');
+    const path = require('path');
+    const uploadsDir = path.join(__dirname, 'uploads');
+    
+    const files = fs.readdirSync(uploadsDir);
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    });
+    
+    if (id >= 0 && id < imageFiles.length) {
+      const filename = imageFiles[id];
+      const filePath = path.join(uploadsDir, filename);
+      
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        return res.json({ message: "Image deleted successfully" });
+      }
+    }
+    
+    return res.status(404).json({ error: "Image not found" });
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    return res.status(500).json({ error: "Failed to delete image" });
+  }
 });
 
 app.use(verifyToken);
@@ -321,6 +463,56 @@ app.post("/api/blogs/create", async (req, res) => {
   }
 });
 
+app.post("/api/blogs/update", async (req, res) => {
+  const { id, title, content, category, image, summary, token } = req.body;
+  const { admin } = req;
+  
+  // Debug logging
+  console.log("Blog update request body:", req.body);
+  console.log("Fields received:", { id: !!id, title: !!title, content: !!content, category: !!category, image: !!image, summary: !!summary, token: !!token });
+  
+  if (!id || !title || !content || !category || !summary || !token || !admin) {
+    const missingFields = [];
+    if (!id) missingFields.push('id');
+    if (!title) missingFields.push('title');
+    if (!content) missingFields.push('content');
+    if (!category) missingFields.push('category');
+    if (!summary) missingFields.push('summary');
+    if (!token) missingFields.push('token');
+    if (!admin) missingFields.push('admin verification');
+    
+    console.log("Missing fields for update:", missingFields);
+    return res
+      .status(400)
+      .json({ msg: `Missing required fields: ${missingFields.join(', ')}`, status: false });
+  }
+  
+  try {
+    const review = await Review.findById(id);
+    if (!review || review.deletedAt) {
+      return res.status(400).json({ msg: "Review not found", status: false });
+    }
+    
+    // Update fields
+    review.title = title;
+    review.content = content;
+    review.summary = summary;
+    review.type = category;
+    if (image) {
+      review.image = image;
+    }
+    
+    await review.save();
+    console.log("Review updated successfully:", review._id);
+    return res
+      .status(200)
+      .json({ msg: "review updated", reviewID: review._id, status: true });
+  } catch (error) {
+    console.error("Error updating review:", error);
+    return res.status(500).json({ msg: "Server Error", status: false });
+  }
+});
+
 app.post("/api/blogs/delete/", async (req, res) => {
   const { id } = req.body;
   const { admin } = req;
@@ -340,7 +532,6 @@ app.post("/api/blogs/delete/", async (req, res) => {
     return res.status(500).json({ msg: "Server Error", status: false });
   }
 });
-
 
 
 
