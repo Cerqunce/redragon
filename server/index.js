@@ -315,7 +315,6 @@ app.post("/api/admin/update", async (req, res) => {
 });
 
 app.post("/api/blogs/upload", upload.single("image"), (req, res) => {
-  console.log(req.file);
   return res.send(req.file);
 });
 
