@@ -22,9 +22,7 @@ export default function ReviewCard({ id, slug, img, title, desc, date }) {
           </div>
         </Link>
         <div className="news-text-box">
-          <h3>
-            <a href="single-news.html">{title}</a>
-          </h3>
+          <h3>{title}</h3>
           <p className="blog-meta">
             <span className="author">
               <i className="fas fa-user"></i> RedragonReviews
